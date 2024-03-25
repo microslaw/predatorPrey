@@ -1,0 +1,14 @@
+multiple sheep can defeat the wolf
+the older the entity is, the slower it moves
+grass grows around corpses
+wolf can eat sheep
+sheep can eat grass
+sheep can reproduce
+wolf can reproduce
+wounded entities move slower
+the older the grass the larger it is
+
+
+neural network
+
+
