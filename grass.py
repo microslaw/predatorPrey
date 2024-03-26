@@ -1,4 +1,5 @@
 from entity import Entity
+import globals
 
 
 class Grass(Entity):
@@ -22,7 +23,7 @@ class Grass(Entity):
         self.size += 0.1 + self.size / 200 - self.size**2 / 20000
 
     def is_alive(self):
-        return self.size > 5
+        return self.size > globals.min_grass_size
 
     def take_damage(self, damage):
-        self.size -= damage/10
+        self.size -= globals.grass_eating_speed

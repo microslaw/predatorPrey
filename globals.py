@@ -1,0 +1,15 @@
+min_wolf_age = 100
+min_wolf_food = 100
+min_sheep_age = 100
+min_sheep_food = 100
+min_grass_size = 10
+grass_eating_speed = 1
+grass_eating_efficiency = 10
+attack_range = 1
+food_cost = 0.5
+starving_damage = 1
+window_height = 500
+window_width = 800
+tickrate = 30
+sheep_grass_size = 15
+wolf_grass_size = 20

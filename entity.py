@@ -1,5 +1,6 @@
 from utils import *
 import random
+import globals
 
 
 class Entity:
@@ -17,7 +18,7 @@ class Entity:
         self.food = food
 
     def attack(self, target):
-        if distance(self.position, target.position) <= 1:
+        if distance(self.position, target.position) <= globals.attack_range:
             target.hp -= self.damage
 
     def move(self, x, y):
@@ -35,9 +36,9 @@ class Entity:
 
     def decide(self, entities):
         self.age += 1
-        self.food -= 0.1
+        self.food -= globals.food_cost
         if self.food < 0:
-            self.hp -= 1
+            self.hp -= globals.starving_damage
         # movement = self.model.predict(entities)
         movement = (
             random.randint(-self.speed, self.speed),
