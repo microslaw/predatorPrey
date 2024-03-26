@@ -19,11 +19,10 @@ class Grass(Entity):
 
     def decide(self, entities):
         self.age += 1
-        self.size += 0.1
-        pass
+        self.size += 0.1 + self.size / 200 - self.size**2 / 20000
 
     def is_alive(self):
-        return self.size > 3
+        return self.size > 5
 
     def take_damage(self, damage):
         self.size -= damage/10

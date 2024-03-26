@@ -45,7 +45,7 @@ class Game:
 
     @staticmethod
     def eat(grass, sheep):
-        sheep.food += grass.hp
+        sheep.food += 1
         grass.take_damage(sheep.damage)
 
         if not grass.is_alive():
@@ -105,7 +105,8 @@ class Game:
 if __name__ == "__main__":
     game = Game()
     # game.entities.append(Wolf((100, 100)))
-    for i in range(2):
-        game.entities.append(Sheep((250, 300)))
+    # for i in range(2):
+    #     game.entities.append(Sheep((250, 300)))
     game.entities.append(Grass((300, 300)))
+    game.entities.append(Grass((500, 500)))
     game.start()

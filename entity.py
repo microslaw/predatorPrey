@@ -35,6 +35,9 @@ class Entity:
 
     def decide(self, entities):
         self.age += 1
+        self.food -= 0.1
+        if self.food < 0:
+            self.hp -= 1
         # movement = self.model.predict(entities)
         movement = (
             random.randint(-self.speed, self.speed),
