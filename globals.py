@@ -15,3 +15,9 @@ game_width = 8000
 tickrate = 30
 sheep_grass_size = 15
 wolf_grass_size = 20
+
+modelParams = None
+modelParams.gamma = 0.95
+modelParams.epsilon = 1.0
+modelParams.epsilon_min = 0.01
+modelParams.epsilon_decay = 0.995
