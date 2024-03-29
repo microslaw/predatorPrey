@@ -1,9 +1,9 @@
-from entity import Entity
 from wolf import Wolf
 from sheep import Sheep
 from grass import Grass
 from utils import distance
 import globals
+import random
 
 
 class Game:
@@ -53,10 +53,21 @@ class Game:
             print(f"{sheep.name} ate {grass.name}")
             return grass
 
-    def __init__(self):
+
+    def __init__(self, randomStart, sheepCount = 5, wolfCount = 2, grassCount = 5):
         self.entities = []
+        self.turnNo = 0
+
+        if randomStart:
+            for i in range(sheepCount):
+                self.entities.append(Sheep((random.randint(0, globals.game_width), random.randint(0, globals.game_height))))
+            for i in range(wolfCount):
+                self.entities.append(Wolf((random.randint(0, globals.game_width), random.randint(0, globals.game_height))))
+            for i in range(grassCount):
+                self.entities.append(Grass((random.randint(0, globals.game_width), random.randint(0, globals.game_height))))
 
     def turn(self):
+        self.turnNo += 1
         for entity in self.entities:
             entity.decide(self.entities)
         self.check_collisions()

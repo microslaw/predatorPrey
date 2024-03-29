@@ -5,15 +5,19 @@ from sheep import Sheep
 from grass import Grass
 import globals
 
+
 class Display:
 
-    def __init__(self):
+    def __init__(self, scale):
         pygame.init()
-        self.screen = pygame.display.set_mode((globals.window_width, globals.window_height))
+        self.screen = pygame.display.set_mode(
+            (globals.window_width, globals.window_height)
+        )
+        self.scale = scale
         self.clock = pygame.time.Clock()
         self.running = True
         self.entities = []
-        self.game = Game()
+        self.game = Game(randomStart=True, sheepCount=50, wolfCount=20, grassCount=50)
 
     def start(self):
         pygame.display.set_caption("predatorPrey")
@@ -26,18 +30,29 @@ class Display:
             self.screen.fill((0, 0, 0))
             self.game.turn()
             for entity in self.game.entities:
-                pygame.draw.circle(self.screen, entity.color, entity.position, entity.size)
+                x, y = entity.position
+                pygame.draw.circle(
+                    self.screen,
+                    entity.color,
+                    (x / self.scale, y / self.scale),
+                    max(1, entity.size / self.scale),
+                )
+
+            if (
+                sum([isinstance(entity, Grass) for entity in self.game.entities])
+                >= len(self.game.entities) - 1
+                or self.game.turnNo > 1000
+            ):
+                self.game = Game(
+                    randomStart=True, sheepCount=50, wolfCount=20, grassCount=50
+                )
 
             pygame.display.flip()
             self.clock.tick(globals.tickrate)
 
         pygame.quit()
 
+
 if __name__ == "__main__":
-    display = Display()
-    display.game.entities.append(Wolf((100, 100)))
-    for i in range(2):
-        display.game.entities.append(Sheep((250, 300)))
-    display.game.entities.append(Grass((300, 300)))
-    display.game.entities.append(Grass((500, 500)))
+    display = Display(scale=10)
     display.start()

@@ -27,6 +27,7 @@ epsilon_decay = 0.995
 for e in range(episodes):
     state = env.reset()
     state = np.reshape(state, [1, state_size])
+
     done = False
     time = 0
     while not done:

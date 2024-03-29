@@ -39,6 +39,8 @@ class Entity:
         self.food -= globals.food_cost
         if self.food < 0:
             self.hp -= globals.starving_damage
+
+
         # movement = self.model.predict(entities)
         movement = (
             random.randint(-self.speed, self.speed),
