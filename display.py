@@ -1,7 +1,5 @@
 import pygame
 from game import Game
-from wolf import Wolf
-from sheep import Sheep
 from grass import Grass
 import globals
 
@@ -17,7 +15,7 @@ class Display:
         self.clock = pygame.time.Clock()
         self.running = True
         self.entities = []
-        self.game = Game(randomStart=True, sheepCount=50, wolfCount=20, grassCount=50)
+        self.game = Game(randomStart=True)
 
     def start(self):
         pygame.display.set_caption("predatorPrey")
@@ -43,9 +41,7 @@ class Display:
                 >= len(self.game.entities) - 1
                 or self.game.turnNo > 1000
             ):
-                self.game = Game(
-                    randomStart=True, sheepCount=50, wolfCount=20, grassCount=50
-                )
+                self.game = Game(randomStart=True)
 
             pygame.display.flip()
             self.clock.tick(globals.tickrate)
@@ -54,5 +50,5 @@ class Display:
 
 
 if __name__ == "__main__":
-    display = Display(scale=10)
+    display = Display(scale=1)
     display.start()

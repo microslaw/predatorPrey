@@ -16,3 +16,8 @@ TODO:
 - add neural network architecture
 - add food mechanic
 - add reward mechanic
+
+
+
+allow entity  to pick their vision range
+different models for each entity instance

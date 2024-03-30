@@ -1,10 +1,10 @@
+print("Starting imports")
 from keras.models import Sequential, load_model
 from keras.layers import Dense
 from keras.optimizers import Adam
 import numpy as np
 import random
 import globals
-
 print("Imports done")
 
 
@@ -38,6 +38,7 @@ class Model:
         self.epsilon = epsilon
         self.epsilon_min = epsilon_min
         self.epsilon_decay = epsilon_decay
+        self.output_shape = output_shape
 
     def save(self, filename):
         model.save(filename)
@@ -53,9 +54,9 @@ class Model:
         self.model.fit(state, target_f, epochs=1, verbose=0)
 
 
-    def decide(self, state, action_size):
+    def decide(self, state):
         if np.random.rand() <= self.epsilon:
-            return random.randrange(action_size)
+            return random.randrange(self.output_shape)
 
         if self.epsilon > self.epsilon_min:
             self.epsilon *= self.epsilon_decay

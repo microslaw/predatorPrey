@@ -1,11 +1,22 @@
 from utils import *
 import random
 import globals
+from model import Model
 
 
 class Entity:
     def __init__(
-        self, name, hp, damage, speed, size, color=(255, 255, 255), position=(100, 100), food=0
+        self,
+        name,
+        hp,
+        damage,
+        speed,
+        size,
+        color=(255, 255, 255),
+        position=(100, 100),
+        food=0,
+        model=None,
+        movementStates=None,
     ):
         self.name = name
         self.hp = hp
@@ -16,6 +27,8 @@ class Entity:
         self.speed = speed
         self.color = color
         self.food = food
+        self.model = model
+        self.movementStates = movementStates
 
     def attack(self, target):
         if distance(self.position, target.position) <= globals.attack_range:
@@ -34,20 +47,45 @@ class Entity:
     def take_damage(self, damage):
         self.hp -= damage
 
-    def decide(self, entities):
+    def decide(self, entitiesDict):
         self.age += 1
         self.food -= globals.food_cost
         if self.food < 0:
             self.hp -= globals.starving_damage
 
+        # movement = self.model.decide(self, state=self.get_state(**entitiesDict))
+        movementId = self.model.decide(state=[0, 434, 403, 5.05, 20, 185, 4.154198871677794, 124, 174, 6])
+        movement = self.movementStates[movementId]
 
-        # movement = self.model.predict(entities)
-        movement = (
-            random.randint(-self.speed, self.speed),
-            random.randint(-self.speed, self.speed),
-        )
+        # movement = (
+        #     random.randint(-self.speed, self.speed),
+        #     random.randint(-self.speed, self.speed),
+        # )
 
         self.moveBy(*movement)
+
+    def get_state(self, wolfes, sheeps, grass):
+        """
+        wolf nearest x
+        wolf nearest y
+        sheep nearest x
+        sheep nearest y
+        grass nearest x
+        grass nearest y
+        wolf proximity
+        sheep proximity
+        grass proximity
+        self.hp
+        """
+        toReturn =  [
+            *proximityEntities(self, wolfes, maxSight=100),
+            *proximityEntities(self, sheeps, maxSight=100),
+            *proximityEntities(self, grass, maxSight=100),
+            self.hp,
+        ]
+
+        print(toReturn)
+        return toReturn
 
     def __str__(self):
         return f"{self.name} has {self.hp} HP and {self.damage} damage"

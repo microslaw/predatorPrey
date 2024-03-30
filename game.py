@@ -20,10 +20,14 @@ class Game:
             Game.eat(entity1, entity2)
 
         if isinstance(entity1, Wolf) and isinstance(entity2, Wolf):
-            return Game.reproduce(entity1, entity2, globals.min_wolf_age, globals.min_wolf_food)
+            return Game.reproduce(
+                entity1, entity2, globals.min_wolf_age, globals.min_wolf_food
+            )
 
         if isinstance(entity1, Sheep) and isinstance(entity2, Sheep):
-            return Game.reproduce(entity1, entity2, globals.min_sheep_age, globals.min_sheep_food)
+            return Game.reproduce(
+                entity1, entity2, globals.min_sheep_age, globals.min_sheep_food
+            )
 
     @staticmethod
     def fight(wolf, sheep):
@@ -53,31 +57,54 @@ class Game:
             print(f"{sheep.name} ate {grass.name}")
             return grass
 
-
-    def __init__(self, randomStart, sheepCount = 5, wolfCount = 2, grassCount = 5):
+    def __init__(self, randomStart, sheepCount=10, wolfCount=5, grassCount=10):
         self.entities = []
         self.turnNo = 0
 
         if randomStart:
             for i in range(sheepCount):
-                self.entities.append(Sheep((random.randint(0, globals.game_width), random.randint(0, globals.game_height))))
+                self.entities.append(
+                    Sheep(
+                        (
+                            random.randint(0, globals.game_width),
+                            random.randint(0, globals.game_height),
+                        )
+                    )
+                )
             for i in range(wolfCount):
-                self.entities.append(Wolf((random.randint(0, globals.game_width), random.randint(0, globals.game_height))))
+                self.entities.append(
+                    Wolf(
+                        (
+                            random.randint(0, globals.game_width),
+                            random.randint(0, globals.game_height),
+                        )
+                    )
+                )
             for i in range(grassCount):
-                self.entities.append(Grass((random.randint(0, globals.game_width), random.randint(0, globals.game_height))))
+                self.entities.append(
+                    Grass(
+                        (
+                            random.randint(0, globals.game_width),
+                            random.randint(0, globals.game_height),
+                        )
+                    )
+                )
 
     def turn(self):
         self.turnNo += 1
         for entity in self.entities:
-            entity.decide(self.entities)
+            entityDict = {
+                "wolfes": [e for e in self.entities if isinstance(e, Wolf)],
+                "sheeps": [e for e in self.entities if isinstance(e, Sheep)],
+                "grass": [e for e in self.entities if isinstance(e, Grass)],
+            }
+            entity.decide(entityDict)
         self.check_collisions()
 
         # for entity in self.entities:
         #     entity.reward()
 
         self.clean_dead()
-
-
 
     def check_collisions(self):
         for entity in self.entities:
