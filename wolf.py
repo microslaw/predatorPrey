@@ -1,29 +1,30 @@
 from entity import Entity
 from model import Model
-from utils import generateStates
+from utils import generate_states
 import globals
 
 
 class Wolf(Entity):
     wolfCount = 0
-    movementStates = generateStates(3)
-    model = Model(
-        input_shape=globals.modelParams.input_shape,
-        output_shape=len(movementStates),
-        learning_rate=0.001,
-    )
+    movement_states = generate_states(globals.entityParams.wolf_speed)
+    # model = Model(
+    #     input_shape=globals.modelParams.input_shape,
+    #     output_shape=len(movement_states),
+    #     learning_rate=0.001,
+    # )
+    model = Model.load(f"v{globals.version_no}\wolf.h5", len(movement_states))
 
-    def __init__(self, parentPos=(0, 0)):
+    def __init__(self, parent_pos=(0, 0)):
         super().__init__(
             name=f"Wolf{Wolf.wolfCount}",
             hp=10,
             damage=5,
-            speed=5,
+            speed=globals.entityParams.wolf_speed,
             size=10,
             color=(255, 0, 0),
-            position=parentPos,
+            position=parent_pos,
             food=100,
             model=Wolf.model,
-            movementStates=Wolf.movementStates,
+            movement_states=Wolf.movement_states,
         )
         Wolf.wolfCount += 1

@@ -2,7 +2,7 @@ import pygame
 from game import Game
 from grass import Grass
 import globals
-
+from timer import timer_predict, timer_state, timer_total
 
 class Display:
 
@@ -49,6 +49,21 @@ class Display:
         pygame.quit()
 
 
+
+
 if __name__ == "__main__":
+
+    timer_total.tic()
     display = Display(scale=1)
     display.start()
+    timer_total.toc()
+
+
+    print("Predict:")
+    timer_predict.stats()
+
+    print("State:")
+    timer_state.stats()
+
+    print("Total:")
+    timer_total.stats()

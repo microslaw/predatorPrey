@@ -2,6 +2,7 @@ from utils import *
 import random
 import globals
 from model import Model
+from timer import timer_predict, timer_state
 
 
 class Entity:
@@ -16,7 +17,7 @@ class Entity:
         position=(100, 100),
         food=0,
         model=None,
-        movementStates=None,
+        movement_states=None,
     ):
         self.name = name
         self.hp = hp
@@ -28,7 +29,7 @@ class Entity:
         self.color = color
         self.food = food
         self.model = model
-        self.movementStates = movementStates
+        self.movement_states = movement_states
 
     def attack(self, target):
         if distance(self.position, target.position) <= globals.attack_range:
@@ -37,7 +38,7 @@ class Entity:
     def move(self, x, y):
         self.position = (x, y)
 
-    def moveBy(self, dx, dy):
+    def move_by(self, dx, dy):
         x, y = self.position
         self.position = (x + dx, y + dy)
 
@@ -54,15 +55,23 @@ class Entity:
             self.hp -= globals.starving_damage
 
         # movement = self.model.decide(self, state=self.get_state(**entitiesDict))
-        movementId = self.model.decide(state=[0, 434, 403, 5.05, 20, 185, 4.154198871677794, 124, 174, 6])
-        movement = self.movementStates[movementId]
+
+        timer_state.tic()
+        self.get_state(**entitiesDict)
+        timer_state.toc()
+
+
+        timer_predict.tic()
+        movementId = self.model.decide(state=[0, 434, 403, 5.05, 20, 185, 4.154198871677794, 124, 174, 6], verbose = 0)
+        timer_predict.toc()
+        movement = self.movement_states[movementId]
 
         # movement = (
         #     random.randint(-self.speed, self.speed),
         #     random.randint(-self.speed, self.speed),
         # )
 
-        self.moveBy(*movement)
+        self.move_by(*movement)
 
     def get_state(self, wolfes, sheeps, grass):
         """
@@ -78,13 +87,12 @@ class Entity:
         self.hp
         """
         toReturn =  [
-            *proximityEntities(self, wolfes, maxSight=100),
-            *proximityEntities(self, sheeps, maxSight=100),
-            *proximityEntities(self, grass, maxSight=100),
+            *proximity_entities(self, wolfes, max_sight=100),
+            *proximity_entities(self, sheeps, max_sight=100),
+            *proximity_entities(self, grass, max_sight=100),
             self.hp,
         ]
 
-        print(toReturn)
         return toReturn
 
     def __str__(self):

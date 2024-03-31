@@ -5,7 +5,7 @@ import globals
 class Grass(Entity):
     grassCount = 0
 
-    def __init__(self, parentPos=(0, 0), size=20):
+    def __init__(self, parent_pos=(0, 0), size=20):
         super().__init__(
             name=f"Grass{Grass.grassCount}",
             hp=10,
@@ -13,7 +13,7 @@ class Grass(Entity):
             speed=0,
             size=size,
             color=(0, 255, 0),
-            position=parentPos,
+            position=parent_pos,
         )
 
         Grass.grassCount += 1

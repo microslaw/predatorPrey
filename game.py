@@ -35,11 +35,11 @@ class Game:
         wolf.take_damage(sheep.damage)
 
         if not sheep.is_alive():
-            print(f"{wolf.name} killed {sheep.name}")
+            # print(f"{wolf.name} killed {sheep.name}")
             return sheep
 
         if not wolf.is_alive():
-            print(f"{sheep.name} killed {wolf.name}")
+            # print(f"{sheep.name} killed {wolf.name}")
             return wolf
 
     @staticmethod
@@ -54,7 +54,7 @@ class Game:
         grass.take_damage(sheep.damage)
 
         if not grass.is_alive():
-            print(f"{sheep.name} ate {grass.name}")
+            # print(f"{sheep.name} ate {grass.name}")
             return grass
 
     def __init__(self, randomStart, sheepCount=10, wolfCount=5, grassCount=10):
@@ -62,7 +62,7 @@ class Game:
         self.turnNo = 0
 
         if randomStart:
-            for i in range(sheepCount):
+            for _ in range(sheepCount):
                 self.entities.append(
                     Sheep(
                         (
@@ -71,7 +71,7 @@ class Game:
                         )
                     )
                 )
-            for i in range(wolfCount):
+            for _ in range(wolfCount):
                 self.entities.append(
                     Wolf(
                         (
@@ -80,7 +80,7 @@ class Game:
                         )
                     )
                 )
-            for i in range(grassCount):
+            for _ in range(grassCount):
                 self.entities.append(
                     Grass(
                         (

@@ -12,9 +12,10 @@ class Model:
 
     @staticmethod
     def init_model(input_shape, output_shape, learning_rate):
+        print(f"Model.init_model({input_shape}, {output_shape}, {learning_rate})")
         model = Sequential()
-        model.add(Dense(64, input_dim=input_shape, activation="relu"))
-        model.add(Dense(64, activation="relu"))
+        model.add(Dense(16, input_dim=input_shape, activation="relu"))
+        model.add(Dense(16, activation="relu"))
         model.add(
             Dense(output_shape, activation="linear")
         )  # Output is Q-value of each action
@@ -22,17 +23,19 @@ class Model:
         return model
 
     @staticmethod
-    def load(filename):
-        return load_model(filename)
+    def load(filename, output_shape):
+        loaded_model = Model(output_shape, model=load_model(filename))
+        return loaded_model
 
     def __init__(
         self,
-        input_shape,
         output_shape,
-        learning_rate,
+        input_shape=globals.modelParams.input_shape,
+        learning_rate=globals.modelParams.learning_rate,
         epsilon=globals.modelParams.epsilon,
         epsilon_min=globals.modelParams.epsilon_min,
         epsilon_decay=globals.modelParams.epsilon_decay,
+        model=None,
     ):
         self.model = Model.init_model(input_shape, output_shape, learning_rate)
         self.epsilon = epsilon
@@ -41,7 +44,7 @@ class Model:
         self.output_shape = output_shape
 
     def save(self, filename):
-        model.save(filename)
+        self.model.save(filename)
 
     def reward(self, state, action, reward, next_state, done):
         target = reward
@@ -51,19 +54,16 @@ class Model:
             )
         target_f = self.model.predict(state)
         target_f[0][action] = target
-        self.model.fit(state, target_f, epochs=1, verbose=0)
+        # self.model.fit(state, target_f, epochs=1, verbose=0)
 
 
-    def decide(self, state):
+    def decide(self, state, verbose):
         if np.random.rand() <= self.epsilon:
             return random.randrange(self.output_shape)
 
         if self.epsilon > self.epsilon_min:
             self.epsilon *= self.epsilon_decay
+        result = self.model.predict([state], verbose=verbose)
+        # print(result)
+        return np.argmax(result[0])
 
-        return np.argmax(model.predict(state)[0])
-
-
-model = Model.init_model(10, 2, 0.001)
-model.save("model.h5")
-model2 = Model.load("model.h5")
