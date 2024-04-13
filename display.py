@@ -47,23 +47,3 @@ class Display:
             self.clock.tick(globals.tickrate)
 
         pygame.quit()
-
-
-
-
-if __name__ == "__main__":
-
-    timer_total.tic()
-    display = Display(scale=1)
-    display.start()
-    timer_total.toc()
-
-
-    print("Predict:")
-    timer_predict.stats()
-
-    print("State:")
-    timer_state.stats()
-
-    print("Total:")
-    timer_total.stats()

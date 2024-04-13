@@ -25,3 +25,4 @@ class Timer:
 timer_predict = Timer()
 timer_state = Timer()
 timer_total = Timer()
+timer_fit = Timer()

@@ -11,8 +11,7 @@ class Sheep(Entity):
     #     input_shape=globals.modelParams.input_shape,
     #     output_shape=len(movement_states),
     # )
-    model = Model.load(f"v{globals.version_no}\sheep.h5", len(movement_states))
-    print(model)
+    model = Model.load(f".\\v{globals.version_no}\\sheepInitial.h5", len(movement_states))
 
     def __init__(self, parentPos=(0, 0)):
         super().__init__(

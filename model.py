@@ -1,11 +1,11 @@
-print("Starting imports")
+print("Starting tensorflow imports...")
 from keras.models import Sequential, load_model
 from keras.layers import Dense
 from keras.optimizers import Adam
+print("... Imports done")
 import numpy as np
 import random
 import globals
-print("Imports done")
 
 
 class Model:
@@ -37,7 +37,8 @@ class Model:
         epsilon_decay=globals.modelParams.epsilon_decay,
         model=None,
     ):
-        self.model = Model.init_model(input_shape, output_shape, learning_rate)
+
+        self.model = model if model is not None else Model.init_model(input_shape, output_shape, learning_rate)
         self.epsilon = epsilon
         self.epsilon_min = epsilon_min
         self.epsilon_decay = epsilon_decay
@@ -46,7 +47,7 @@ class Model:
     def save(self, filename):
         self.model.save(filename)
 
-    def reward(self, state, action, reward, next_state, done):
+    def fit(self, state, action, reward, next_state, done):
         target = reward
         if not done:
             target = reward + globals.modelParams.gamma * np.max(
@@ -54,7 +55,7 @@ class Model:
             )
         target_f = self.model.predict(state)
         target_f[0][action] = target
-        # self.model.fit(state, target_f, epochs=1, verbose=0)
+        self.model.fit(state, target_f, epochs=1, verbose=0)
 
 
     def decide(self, state, verbose):

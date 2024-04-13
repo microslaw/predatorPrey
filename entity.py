@@ -18,6 +18,7 @@ class Entity:
         food=0,
         model=None,
         movement_states=None,
+        reward=0,
     ):
         self.name = name
         self.hp = hp
@@ -30,6 +31,7 @@ class Entity:
         self.food = food
         self.model = model
         self.movement_states = movement_states
+        self.reward = reward
 
     def attack(self, target):
         if distance(self.position, target.position) <= globals.attack_range:
@@ -54,7 +56,6 @@ class Entity:
         if self.food < 0:
             self.hp -= globals.starving_damage
 
-        # movement = self.model.decide(self, state=self.get_state(**entitiesDict))
 
         timer_state.tic()
         self.get_state(**entitiesDict)
@@ -62,7 +63,8 @@ class Entity:
 
 
         timer_predict.tic()
-        movementId = self.model.decide(state=[0, 434, 403, 5.05, 20, 185, 4.154198871677794, 124, 174, 6], verbose = 0)
+        movementId = self.model.decide(state=self.get_state(**entitiesDict), verbose = 0)
+        # movementId = self.model.decide(state=[0, 434, 403, 5.05, 20, 185, 4.154198871677794, 124, 174, 6], verbose = 0)
         timer_predict.toc()
         movement = self.movement_states[movementId]
 
@@ -72,6 +74,9 @@ class Entity:
         # )
 
         self.move_by(*movement)
+
+    def fit(self):
+        self.model.fit()
 
     def get_state(self, wolfes, sheeps, grass):
         """

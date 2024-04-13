@@ -10,9 +10,8 @@ class Wolf(Entity):
     # model = Model(
     #     input_shape=globals.modelParams.input_shape,
     #     output_shape=len(movement_states),
-    #     learning_rate=0.001,
     # )
-    model = Model.load(f"v{globals.version_no}\wolf.h5", len(movement_states))
+    model = Model.load(f".\\v{globals.version_no}\\wolfInitial.h5", len(movement_states))
 
     def __init__(self, parent_pos=(0, 0)):
         super().__init__(

@@ -4,6 +4,7 @@ from grass import Grass
 from utils import distance
 import globals
 import random
+from timer import timer_fit
 
 
 class Game:
@@ -101,15 +102,18 @@ class Game:
             entity.decide(entityDict)
         self.check_collisions()
 
-        # for entity in self.entities:
-        #     entity.reward()
+
+        for entity in self.entities:
+            timer_fit.tic()
+            entity.fit()
+            timer_fit.toc()
 
         self.clean_dead()
 
     def check_collisions(self):
-        for entity in self.entities:
-            for other in self.entities:
-                if entity != other:
+        for i, entity in enumerate(self.entities):
+            for j, other in enumerate(self.entities):
+                if i<j:
                     if (
                         distance(entity.position, other.position)
                         < entity.size + other.size
