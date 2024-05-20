@@ -27,6 +27,13 @@ wolf_grass_size = 20
 sheep_speed = 2
 wolf_speed = 3
 
+reward_eating = 1
+reward_reproduce = 20
+reward_high_hp = 1
+high_hp_treshold = 4.5
+penalty_death = -100
+
+
 class modelParams:
     pass
 modelParams.gamma = 0.95

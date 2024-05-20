@@ -4,6 +4,7 @@ from grass import Grass
 import globals
 from timer import timer_predict, timer_state, timer_total
 
+
 class Display:
 
     def __init__(self, scale):
@@ -37,9 +38,11 @@ class Display:
                 )
 
             if (
-                sum([isinstance(entity, Grass) for entity in self.game.entities])
-                >= len(self.game.entities) - 1
-                or self.game.turnNo > 1000
+                    sum([isinstance(entity, Grass) for entity in self.game.entities])
+                    >= len(self.game.entities) - 1
+                    or self.game.turnNo > 1000
+                    or self.game.get_sheeps_count() == 0
+                    or self.game.get_wolfes_count() == 0
             ):
                 self.game = Game(randomStart=True)
 

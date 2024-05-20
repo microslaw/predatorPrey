@@ -36,7 +36,9 @@ class Game:
         wolf.take_damage(sheep.damage)
 
         if not sheep.is_alive():
-            # print(f"{wolf.name} killed {sheep.name}")
+            print(f"{wolf.name} killed {sheep.name}")
+            sheep.penalize_getting_killed()
+            wolf.reward_eating()
             return sheep
 
         if not wolf.is_alive():
@@ -47,13 +49,15 @@ class Game:
     def reproduce(entity1, entity2, minAge, minFood):
         if entity1.age > minAge and entity2.age > minAge:
             if entity1.food > minFood and entity2.food > minFood:
+                entity1.reward_reproducing()
+                entity2.reward_reproducing()
                 return entity1.__class__(entity1.position)
 
     @staticmethod
     def eat(grass, sheep):
         sheep.food += globals.grass_eating_efficiency
         grass.take_damage(sheep.damage)
-
+        sheep.reward_eating()
         if not grass.is_alive():
             # print(f"{sheep.name} ate {grass.name}")
             return grass
@@ -102,13 +106,19 @@ class Game:
             entity.decide(entityDict)
         self.check_collisions()
 
-
         for entity in self.entities:
             timer_fit.tic()
             entity.fit()
+            entity.set_rewards(0)
             timer_fit.toc()
 
         self.clean_dead()
+
+    def get_wolfes_count(self):
+        return sum([isinstance(entity, Wolf) for entity in self.entities])
+
+    def get_sheeps_count(self):
+        return sum([isinstance(entity, Sheep) for entity in self.entities])
 
     def check_collisions(self):
         for i, entity in enumerate(self.entities):

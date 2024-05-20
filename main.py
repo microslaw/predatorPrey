@@ -1,4 +1,6 @@
 import display
 
+
 if __name__ == "__main__":
-    display.start()
+    game_display = display.Display(2)
+    game_display.start()
