@@ -1,4 +1,4 @@
-version_no = 0
+version_no = 3
 
 min_wolf_age = 100
 min_wolf_food = 100

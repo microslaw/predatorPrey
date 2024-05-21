@@ -103,6 +103,7 @@ class Game:
                 "sheeps": [e for e in self.entities if isinstance(e, Sheep)],
                 "grass": [e for e in self.entities if isinstance(e, Grass)],
             }
+            print(f"Name: {entity.name}, current hp: {entity.hp}, current food: {entity.food}")
             entity.decide(entityDict)
         self.check_collisions()
 

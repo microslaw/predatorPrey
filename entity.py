@@ -65,10 +65,10 @@ class Entity:
         timer_state.toc()
 
         timer_predict.tic()
-        movementId = self.model.decide(state=self.get_state(**entitiesDict), verbose=0)
+        movementId = self.model.decide(state=self.get_state(**entitiesDict))     # type: ignore
         # movementId = self.model.decide(state=[0, 434, 403, 5.05, 20, 185, 4.154198871677794, 124, 174, 6], verbose = 0)
         timer_predict.toc()
-        movement = self.movement_states[movementId]
+        movement = self.movement_states[movementId]     # type: ignore
         self.last_action = movementId
         self.previous_state = self.get_state(**entitiesDict)
         # movement = (
@@ -104,7 +104,7 @@ class Entity:
         self.reward_high_hp()
         reward = self.reward
         print(f"Name: {self.name}, current hp: {self.hp}, current food: {self.food}, self reward: {self.reward}, reward: {reward}")
-        self.model.fit(state, action, reward, next_state, False)
+        self.model.fit(state, action, reward, next_state, False)        # type: ignore
 
     def get_state(self, wolfes, sheeps, grass):
         """
