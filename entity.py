@@ -2,7 +2,7 @@ from utils import *
 import random
 import globals
 import numpy as np
-from model import Model
+from brain import Brain
 from timer import timer_predict, timer_state
 
 
@@ -30,7 +30,7 @@ class Entity:
         self.speed = speed
         self.color = color
         self.food = food
-        self.model: Model = model
+        self.model: Brain = model
         self.movement_states = movement_states
         self.reward = reward
         self.last_action = 0
@@ -120,12 +120,16 @@ class Entity:
         sheep proximity
         grass proximity
         self.hp
+        self.x
+        self.y
         """
         toReturn = [
             *proximity_entities(self, wolfes, max_sight=100),
             *proximity_entities(self, sheeps, max_sight=100),
             *proximity_entities(self, grass, max_sight=100),
             self.hp,
+            self.position[0],
+            self.position[1],
         ]
 
         return toReturn
