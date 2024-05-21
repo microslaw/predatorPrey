@@ -8,18 +8,18 @@ from timer import timer_predict, timer_state
 
 class Entity:
     def __init__(
-            self,
-            name,
-            hp,
-            damage,
-            speed,
-            size,
-            color=(255, 255, 255),
-            position=(100, 100),
-            food=0,
-            model=None,
-            movement_states=None,
-            reward=0,
+        self,
+        name,
+        hp,
+        damage,
+        speed,
+        size,
+        model,
+        color=(255, 255, 255),
+        position=(100, 100),
+        food=0,
+        movement_states=None,
+        reward=0,
     ):
         self.name = name
         self.hp = hp
@@ -30,7 +30,7 @@ class Entity:
         self.speed = speed
         self.color = color
         self.food = food
-        self.model = model
+        self.model: Model = model
         self.movement_states = movement_states
         self.reward = reward
         self.last_action = 0
@@ -65,10 +65,10 @@ class Entity:
         timer_state.toc()
 
         timer_predict.tic()
-        movementId = self.model.decide(state=self.get_state(**entitiesDict))     # type: ignore
+        movementId = self.model.decide(state=self.get_state(**entitiesDict))  # type: ignore
         # movementId = self.model.decide(state=[0, 434, 403, 5.05, 20, 185, 4.154198871677794, 124, 174, 6], verbose = 0)
         timer_predict.toc()
-        movement = self.movement_states[movementId]     # type: ignore
+        movement = self.movement_states[movementId]  # type: ignore
         self.last_action = movementId
         self.previous_state = self.get_state(**entitiesDict)
         # movement = (
@@ -103,8 +103,10 @@ class Entity:
         next_state = np.array([self.current_state])
         self.reward_high_hp()
         reward = self.reward
-        print(f"Name: {self.name}, current hp: {self.hp}, current food: {self.food}, self reward: {self.reward}, reward: {reward}")
-        self.model.fit(state, action, reward, next_state, False)        # type: ignore
+        print(
+            f"Name: {self.name}, current hp: {self.hp}, current food: {self.food}, self reward: {self.reward}, reward: {reward}"
+        )
+        self.model.fit(state, action, reward, next_state, False)  # type: ignore
 
     def get_state(self, wolfes, sheeps, grass):
         """

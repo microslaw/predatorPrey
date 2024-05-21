@@ -1,5 +1,5 @@
 import numpy as np
-
+import os
 
 def distance(p1, p2):
     return np.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2)
@@ -27,3 +27,7 @@ def generate_states(speed):
 
 def mse(y_true, y_pred):
     return np.mean(np.square(y_pred - y_true))
+
+def mkdir_if_not_exist(path):
+    if not os.path.exists(path):
+        os.makedirs(path)

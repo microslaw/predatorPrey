@@ -6,7 +6,7 @@ import globals
 
 class Wolf(Entity):
     wolfCount = 0
-    movement_states = generate_states(globals.entityParams.wolf_speed) # type: ignore
+    movement_states = generate_states(globals.entityParams_wolf_speed) # type: ignore
     # model = Model(
     #     input_shape=globals.modelParams.input_shape,
     #     output_shape=len(movement_states),
@@ -18,7 +18,7 @@ class Wolf(Entity):
             name=f"Wolf{Wolf.wolfCount}",
             hp=10,
             damage=5,
-            speed=globals.entityParams.wolf_speed, # type: ignore
+            speed=globals.entityParams_wolf_speed, # type: ignore
             size=10,
             color=(255, 0, 0),
             position=parent_pos,

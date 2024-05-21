@@ -6,7 +6,7 @@ import globals
 
 class Sheep(Entity):
     sheep_count = 0
-    movement_states = generate_states(globals.entityParams.sheep_speed) # type: ignore
+    movement_states = generate_states(globals.entityParams_sheep_speed) # type: ignore
     # model = Model(
     #     input_shape=globals.modelParams.input_shape,
     #     output_shape=len(movement_states),
@@ -18,7 +18,7 @@ class Sheep(Entity):
             name=f"Sheep{Sheep.sheep_count}",
             hp=6,
             damage=2,
-            speed=globals.entityParams.sheep_speed, # type: ignore
+            speed=globals.entityParams_sheep_speed, # type: ignore
             size=5,
             color=(0, 0, 255),
             position=parentPos,
