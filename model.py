@@ -62,7 +62,7 @@ class Model:
             )
         target_f = self.model.predict(np.array(state), verbose=0)
         target_f[0][action] = target
-        # self.model.fit(state, target_f, epochs=1, verbose=0)
+        self.model.fit(state, target_f, epochs=1, verbose=0)
 
     def decide(self, state):
         if np.random.rand() <= self.epsilon:

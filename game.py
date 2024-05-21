@@ -62,7 +62,7 @@ class Game:
             # print(f"{sheep.name} ate {grass.name}")
             return grass
 
-    def __init__(self, randomStart, sheepCount=2, wolfCount=1, grassCount=3):
+    def __init__(self, randomStart, sheepCount=10, wolfCount=5, grassCount=3):
         self.entities = []
         self.turnNo = 0
 
