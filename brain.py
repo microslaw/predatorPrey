@@ -11,13 +11,13 @@ import globals
 from utils import mse
 
 
-class Model:
+class Brain:
 
     @staticmethod
     def init_model(input_shape, output_shape, learning_rate):
         print(f"Model.init_model({input_shape}, {output_shape}, {learning_rate})")
         model = Sequential()
-        model.add(Dense(10, input_dim=input_shape, activation="relu"))
+        model.add(Dense(input_shape, input_dim=input_shape, activation="relu"))
         model.add(Dense(10, activation="relu"))
         model.add(Dense(output_shape, activation="softmax"))
         model.compile(
@@ -27,7 +27,7 @@ class Model:
 
     @staticmethod
     def load(filename, output_shape):
-        loaded_model = Model(output_shape, model=load_model(filename))
+        loaded_model = Brain(output_shape, model=load_model(filename))
         return loaded_model
 
     def __init__(
@@ -44,7 +44,7 @@ class Model:
         self.model = (
             model
             if model is not None
-            else Model.init_model(input_shape, output_shape, learning_rate)
+            else Brain.init_model(input_shape, output_shape, learning_rate)
         )
         self.epsilon = epsilon
         self.epsilon_min = epsilon_min

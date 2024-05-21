@@ -1,5 +1,5 @@
 from entity import Entity
-from model import Model
+from brain import Brain
 from utils import generate_states
 import globals
 
@@ -11,7 +11,7 @@ class Wolf(Entity):
     #     input_shape=globals.modelParams.input_shape,
     #     output_shape=len(movement_states),
     # )
-    model = Model.load(f".\\v{globals.version_no}\\wolfInitial.keras", len(movement_states))
+    model = Brain.load(f".\\v{globals.version_no}\\wolfInitial.keras", len(movement_states))
 
     def __init__(self, parent_pos=(0, 0)):
         super().__init__(

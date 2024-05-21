@@ -1,6 +1,6 @@
 from entity import Entity
 import globals
-from model import Model
+from brain import Brain
 
 
 class Grass(Entity):
@@ -13,7 +13,7 @@ class Grass(Entity):
             damage=5,
             speed=0,
             size=size,
-            model=Model(10),
+            model=Brain(0),
             color=(0, 255, 0),
             position=parent_pos,
         )
