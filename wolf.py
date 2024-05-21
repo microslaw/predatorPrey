@@ -11,7 +11,7 @@ class Wolf(Entity):
     #     input_shape=globals.modelParams.input_shape,
     #     output_shape=len(movement_states),
     # )
-    model = Brain.load(f".\\v{globals.version_no}\\wolfInitial.keras", len(movement_states))
+    brain = Brain.load(f".\\v{globals.version_no}\\wolfInitial.keras", len(movement_states))
 
     def __init__(self, parent_pos=(0, 0)):
         super().__init__(
@@ -23,7 +23,7 @@ class Wolf(Entity):
             color=(255, 0, 0),
             position=parent_pos,
             food=100,
-            model=Wolf.model,
+            brain=Wolf.brain,
             movement_states=Wolf.movement_states,
         )
         Wolf.wolfCount += 1

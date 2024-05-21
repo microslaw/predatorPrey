@@ -14,7 +14,7 @@ class Entity:
         damage,
         speed,
         size,
-        model,
+        brain,
         color=(255, 255, 255),
         position=(100, 100),
         food=0,
@@ -30,7 +30,7 @@ class Entity:
         self.speed = speed
         self.color = color
         self.food = food
-        self.model: Brain = model
+        self.brain: Brain = brain
         self.movement_states = movement_states
         self.reward = reward
         self.last_action = 0
@@ -65,7 +65,7 @@ class Entity:
         timer_state.toc()
 
         timer_predict.tic()
-        movementId = self.model.decide(state=self.get_state(**entitiesDict))  # type: ignore
+        movementId = self.brain.decide(state=self.get_state(**entitiesDict))  # type: ignore
         # movementId = self.model.decide(state=[0, 434, 403, 5.05, 20, 185, 4.154198871677794, 124, 174, 6], verbose = 0)
         timer_predict.toc()
         movement = self.movement_states[movementId]  # type: ignore
@@ -106,7 +106,7 @@ class Entity:
         print(
             f"Name: {self.name}, current hp: {self.hp}, current food: {self.food}, self reward: {self.reward}, reward: {reward}"
         )
-        self.model.fit(state, action, reward, next_state, False)  # type: ignore
+        self.brain.fit(state, action, reward, next_state, False)  # type: ignore
 
     def get_state(self, wolfes, sheeps, grass):
         """

@@ -11,7 +11,7 @@ class Sheep(Entity):
     #     input_shape=globals.modelParams.input_shape,
     #     output_shape=len(movement_states),
     # )
-    model = Brain.load(f".\\v{globals.version_no}\\sheepInitial.keras", len(movement_states))
+    brain = Brain.load(f".\\v{globals.version_no}\\sheepInitial.keras", len(movement_states))
 
     def __init__(self, parentPos=(0, 0)):
         super().__init__(
@@ -23,7 +23,7 @@ class Sheep(Entity):
             color=(0, 0, 255),
             position=parentPos,
             food=50,
-            model=Sheep.model,
+            brain=Sheep.brain,
             movement_states=Sheep.movement_states,
         )
         Sheep.sheep_count += 1

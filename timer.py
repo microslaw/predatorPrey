@@ -1,20 +1,22 @@
 import time
+import numpy as np
 
 class Timer:
-    @staticmethod
-    def now():
-        return int(time.process_time() * 1_000)
 
-    def __init__(self):
+    def __init__(self, precision=3):
         self.total_time = 0
         self.total_calls = 0
         self.tic_time = 0
+        self.precision = precision
+
+    def now(self):
+        return int(time.process_time() * np.exp(self.precision))
 
     def tic(self):
-        self.tic_time = Timer.now()
+        self.tic_time = self.now()
 
     def toc(self):
-        self.total_time += Timer.now() - self.tic_time
+        self.total_time += self.now() - self.tic_time
         self.total_calls += 1
 
     def stats(self):

@@ -13,7 +13,7 @@ class Grass(Entity):
             damage=5,
             speed=0,
             size=size,
-            model=Brain(0),
+            brain=Brain(0),
             color=(0, 255, 0),
             position=parent_pos,
         )
