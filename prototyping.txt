@@ -23,6 +23,7 @@ change output to 2 coordinates + speed:
 
 general changes:
 make model one layered to increase stability
+shrink enviroment, so that each decision has more impact
 
 
 optimizations:
@@ -36,3 +37,10 @@ use dual models with freezing - more stable, hard to do
 
 
 Trials/tpyes:
+	1. add x and y to inputs
+2. create ml framework
+3. change input to cnn
+4. change output to 2 coordinates + speed
+5. add more parameters to inputs.
+6. rework  learning
+7. batch training
