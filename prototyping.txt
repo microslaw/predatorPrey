@@ -39,6 +39,9 @@ use dual models with freezing - more stable, hard to do
 Trials/tpyes:
 	1. add x and y to inputs
 2. create ml framework
+	- binning?
+	- spilling?
+
 3. change input to cnn
 4. change output to 2 coordinates + speed
 5. add more parameters to inputs.
