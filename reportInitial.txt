@@ -1,0 +1,7 @@
+grass growth function, farmer sheep
+own neural network, x3 as fast
+list all parameters
+list breeding counts over learning
+testing if network can have specified shape
+think about adding dropout
+

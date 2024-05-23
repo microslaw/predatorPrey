@@ -10,7 +10,7 @@ class Timer:
         self.precision = precision
 
     def now(self):
-        return int(time.process_time() * np.exp(self.precision))
+        return int(time.process_time() * np.power(10,self.precision))
 
     def tic(self):
         self.tic_time = self.now()
@@ -19,10 +19,13 @@ class Timer:
         self.total_time += self.now() - self.tic_time
         self.total_calls += 1
 
+    def getElapsedTime(self):
+        return self.total_time
+
     def stats(self):
-        print(f"Total time: {int(self.total_time/1000)} s")
+        print(f"Total time: {self.total_time/1000} s")
         print(f"Total calls: {self.total_calls}")
-        print(f"Average time: {int(self.total_time / self.total_calls)} ms")
+        print(f"Average time: {((self.total_time/np.power(10, self.precision)) / self.total_calls)} s")
 
 timer_predict = Timer()
 timer_state = Timer()
