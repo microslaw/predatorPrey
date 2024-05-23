@@ -1,7 +1,30 @@
 grass growth function, farmer sheep
-own neural network, x3 as fast
+custom neural network, x100 as fast. Our implementation is very basic, but can be trained way quicker, overcoming previous keras model
 list all parameters
 list breeding counts over learning
 testing if network can have specified shape
 think about adding dropout
 there was a huge problem with dead neurons, so relu was swapped for leaky relu
+changed the way the output works: initially, the model could pick any position within it's range as a different output neuron.
+    This meant that moving 4 tiles up and 5 tiles up were completely different  decisions
+    Now, the output consists of 3 neurons, 2 representing the angle and 1 representing the distance
+    2 neurons have to
+
+
+changed the way the input works:
+    initially, the model received 13 values:
+        - 3 proximity values for every type of organism (proximity was our own arbitrary function for determing the density of other entities in the area)
+        - 3*2 coordinates for nearest instance of every organism type
+        - 2 controlled entity own coordinates
+        - self.hp
+        - self.food
+
+    now, the model receives:
+        - an cnn-like image of the square with side length 5 times the controlled entity's speed
+        - self.hp
+        - self.food
+        - maybe some random number?
+
+
+    outlook intentionally uses the manhatan distance. Later, we may be able to see some interesting differences in the corner of the outlook.
+    (My prediciton is that it will ignore them a bit more than the rest)

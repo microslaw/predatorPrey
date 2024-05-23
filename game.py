@@ -1,10 +1,11 @@
 from wolf import Wolf
 from sheep import Sheep
 from grass import Grass
-from utils import distance
+from utils import distance_kartesian, distance_manhattan
 import globals
 import random
 from timer import timer_fit
+import numpy as np
 
 
 class Game:
@@ -36,7 +37,7 @@ class Game:
         wolf.take_damage(sheep.damage)
 
         if not sheep.is_alive():
-            print(f"{wolf.name} killed {sheep.name}")
+            # print(f"{wolf.name} killed {sheep.name}")
             sheep.penalize_getting_killed()
             wolf.reward_eating()
             return sheep
@@ -65,6 +66,17 @@ class Game:
     def __init__(self, randomStart, sheepCount=10, wolfCount=5, grassCount=3):
         self.entities = []
         self.turnNo = 0
+
+        pinkSheep = Sheep(
+            (
+                globals.game_width / 2,
+                globals.game_height / 2,
+            )
+        )
+        pinkSheep.color = (255, 0, 255)
+        pinkSheep.chosen = True
+
+        self.entities.append(pinkSheep)
 
         if randomStart:
             for _ in range(sheepCount):
@@ -103,7 +115,7 @@ class Game:
                 "sheeps": [e for e in self.entities if isinstance(e, Sheep)],
                 "grass": [e for e in self.entities if isinstance(e, Grass)],
             }
-            print(f"Name: {entity.name}, current hp: {entity.hp}, current food: {entity.food}")
+            # print(f"Name: {entity.name}, current hp: {entity.hp}, current food: {entity.food}")
             entity.decide(entityDict)
         self.check_collisions()
 
@@ -124,9 +136,9 @@ class Game:
     def check_collisions(self):
         for i, entity in enumerate(self.entities):
             for j, other in enumerate(self.entities):
-                if i<j:
+                if i < j:
                     if (
-                        distance(entity.position, other.position)
+                        distance_kartesian(entity.position, other.position)
                         < entity.size + other.size
                     ):
                         # print(f"{entity.name} collided with {other.name}")
@@ -144,3 +156,26 @@ class Game:
                 self.entities.append(Grass(body.position, globals.sheep_grass_size))
 
         self.entities = [entity for entity in self.entities if entity.is_alive()]
+
+    # sight is the number of bins. Scale is the size of the bin
+    def get_outlook(self, position, sight, scale=1):
+        nearby_entities = []
+        for entity in self.entities:
+            if distance_manhattan(position, entity.position) < sight * scale:
+                nearby_entities.append(entity)
+
+        outlook = np.zeros((sight, sight, 3))
+        for entity in nearby_entities:
+            x, y = entity.position
+            x -= position[0]
+            y -= position[1]
+
+            x = int((x + sight * scale * 0.5) // scale)
+            y = int((y + sight * scale * 0.5) // scale)
+
+            x = min(max(0, x), sight - 1)
+            y = min(max(0, y), sight - 1)
+
+            outlook[x, y] = entity.color
+
+        return outlook

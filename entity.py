@@ -36,9 +36,10 @@ class Entity:
         self.last_action = 0
         self.previous_state = 0
         self.current_state = 0
+        self.chosen = False
 
     def attack(self, target):
-        if distance(self.position, target.position) <= globals.attack_range:
+        if distance_kartesian(self.position, target.position) <= globals.attack_range:
             target.hp -= self.damage
 
     def move(self, x, y):
@@ -103,9 +104,9 @@ class Entity:
         next_state = np.array([self.current_state])
         self.reward_high_hp()
         reward = self.reward
-        print(
-            f"Name: {self.name}, current hp: {self.hp}, current food: {self.food}, self reward: {self.reward}, reward: {reward}"
-        )
+        # print(
+        #     f"Name: {self.name}, current hp: {self.hp}, current food: {self.food}, self reward: {self.reward}, reward: {reward}"
+        # )
         self.brain.fit(state, action, reward, next_state, False)  # type: ignore
 
     def get_state(self, wolfes, sheeps, grass):

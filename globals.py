@@ -21,7 +21,7 @@ window_width = 800
 game_height = 500
 game_width = 800
 
-tickrate = 300
+tickrate = 30
 
 sheep_grass_size = 15
 wolf_grass_size = 20
@@ -51,3 +51,6 @@ modelRewards_wolf_death=-100
 
 entityParams_sheep_speed = 2
 entityParams_wolf_speed = 3
+
+
+game_no = 0

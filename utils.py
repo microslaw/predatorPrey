@@ -1,17 +1,19 @@
 import numpy as np
 import os
 
-def distance(p1, p2):
+def distance_kartesian(p1, p2):
     return np.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2)
 
+def distance_manhattan(p1, p2):
+    return abs(p1[0] - p2[0]) + abs(p1[1] - p2[1])
 
 def proximity_entities(center_entity, entities, max_sight=100):
     proximity = 0
-    nearestDist = distance(center_entity.position, entities[0].position)
+    nearestDist = distance_kartesian(center_entity.position, entities[0].position)
     nearest_x, nearest_y = entities[0].position
 
     for entity in entities:
-        dist = distance(center_entity.position, entity.position) - entity.size
+        dist = distance_kartesian(center_entity.position, entity.position) - entity.size
         if dist < max_sight:
             proximity += 5 - dist / max_sight
         if dist < nearestDist:
