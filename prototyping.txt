@@ -38,12 +38,29 @@ use dual models with freezing - more stable, hard to do
 
 Trials/tpyes:
 	1. add x and y to inputs
-2. create ml framework
-	- binning?
-	- spilling?
+2. create ml framework	- done
 
 3. change input to cnn
-4. change output to 2 coordinates + speed
-5. add more parameters to inputs.
+	- binning?
+	- spilling?
+4. change output to 2 coordinates + speed - done
+5. add more parameters to inputs. - omited
 6. rework  learning
 7. batch training
+
+showcase ideas:
+	- compare some metrics between random, manual, and learned
+	- put different combinations of them in the same enviroment
+	- show weight aggregates on image
+
+
+
+
+todo for 5-24:
+	- connect the model to the simulation, try making it learn
+	design test scenarios for the next day
+	maybe convolution
+	create a simpler enviroment
+	change sizes
+	pick final parameters for sight
+	benchmark and try to optimize

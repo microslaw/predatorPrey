@@ -65,10 +65,8 @@ class Entity:
         self.get_state(**entitiesDict)
         timer_state.toc()
 
-        timer_predict.tic()
-        movementId = self.brain.decide(state=self.get_state(**entitiesDict))  # type: ignore
+        movementId = self.brain.decide(state=self.get_state(**entitiesDict))
         # movementId = self.model.decide(state=[0, 434, 403, 5.05, 20, 185, 4.154198871677794, 124, 174, 6], verbose = 0)
-        timer_predict.toc()
         movement = self.movement_states[movementId]  # type: ignore
         self.last_action = movementId
         self.previous_state = self.get_state(**entitiesDict)

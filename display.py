@@ -4,6 +4,7 @@ from grass import Grass
 import globals
 from timer import timer_predict, timer_state, timer_total
 import cv2
+import numpy as np
 
 
 class Display:
@@ -40,9 +41,16 @@ class Display:
                     (x / self.scale, y / self.scale),
                     max(1, entity.size / self.scale),
                 )
+
+
                 if entity.chosen:
-                    entity.position = (x + 10, y + 10)
-                    outlook = self.game.get_outlook(entity.position, 200, 20)
+                    entity.position = (x + 1, y + 1)
+
+                    outlook = self.game.get_outlook(entity.position, 100, 20)
+                    print(outlook.shape)
+                    outlook = np.transpose(outlook, (1, 2, 0))
+                    outlook = outlook.astype(np.float32)
+                    outlook = cv2.cvtColor(outlook, cv2.COLOR_BGR2RGB)
                     cv2.imshow('Animation', cv2.resize(outlook, (800, 800)))
 
             if (

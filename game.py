@@ -4,8 +4,10 @@ from grass import Grass
 from utils import distance_kartesian, distance_manhattan
 import globals
 import random
-from timer import timer_fit
+from timer import timer_fit, timer_predict
 import numpy as np
+import cv2
+from neuralNetwork import NeuralNetwork as nn
 
 
 class Game:
@@ -66,6 +68,7 @@ class Game:
     def __init__(self, randomStart, sheepCount=10, wolfCount=5, grassCount=3):
         self.entities = []
         self.turnNo = 0
+        self.neural = nn([5_000, 20, 20, 3], [nn.leakyRelu, nn.leakyRelu, nn.leakyRelu])
 
         pinkSheep = Sheep(
             (
@@ -116,14 +119,27 @@ class Game:
                 "grass": [e for e in self.entities if isinstance(e, Grass)],
             }
             # print(f"Name: {entity.name}, current hp: {entity.hp}, current food: {entity.food}")
+
+            timer_predict.tic()
+            self.get_outlook(entity.position, 50, 20)
+            self.neural.loadInput(np.random.uniform(0, 1, 5000))
+            self.neural.forward()
+            x = self.neural.readOutput()
+            timer_predict.toc()
+
             entity.decide(entityDict)
         self.check_collisions()
 
         for entity in self.entities:
+
             timer_fit.tic()
+            self.neural.loadInput(np.random.uniform(0, 1, 5000))
+            self.neural.forward()
+            self.neural.backpropagation(np.random.randint(3), 0.0001, nn.mseLoss)
+            timer_fit.toc()
+
             entity.fit()
             entity.set_rewards(0)
-            timer_fit.toc()
 
         self.clean_dead()
 
@@ -158,13 +174,13 @@ class Game:
         self.entities = [entity for entity in self.entities if entity.is_alive()]
 
     # sight is the number of bins. Scale is the size of the bin
-    def get_outlook(self, position, sight, scale=1):
+    def get_outlook2(self, position, sight, scale=1):
         nearby_entities = []
         for entity in self.entities:
             if distance_manhattan(position, entity.position) < sight * scale:
                 nearby_entities.append(entity)
 
-        outlook = np.zeros((sight, sight, 3))
+        outlook = np.zeros((sight, sight, 3), dtype=np.uint8)
         for entity in nearby_entities:
             x, y = entity.position
             x -= position[0]
@@ -173,9 +189,41 @@ class Game:
             x = int((x + sight * scale * 0.5) // scale)
             y = int((y + sight * scale * 0.5) // scale)
 
+            Y, X = np.ogrid[: entity.size, : entity.size]
+            dist_from_center = distance_kartesian(
+                (X, Y), (entity.size // 2, entity.size // 2)
+            )
+            mask = dist_from_center <= entity.size // 2
+
             x = min(max(0, x), sight - 1)
             y = min(max(0, y), sight - 1)
 
-            outlook[x, y] = entity.color
+            # outlook[y, x] = entity.color if mask else (0, 0, 0)
+            outlook[y, x] = entity.color
 
-        return outlook
+        return outlook.T
+
+    def get_outlook(self, position, sight, scale=1):
+        # Initialize a numpy array of zeros
+        outlook = np.zeros((sight, sight, 3))
+
+        # Iterate over the array of tuples
+        for entity in self.entities:
+            # Calculate the coordinates of the circle
+            Y, X = np.ogrid[:sight, :sight]
+            x, y = entity.position
+            x -= position[0]
+            y -= position[1]
+
+            dist_from_center = np.sqrt(
+                (X - sight / 2 - x) ** 2 + (Y - sight / 2 - y) ** 2
+            )
+
+            # Create a mask for the circle
+            mask = dist_from_center <= entity.size
+
+            # Use the mask to set the corresponding values in the numpy array to 1
+            # mask = cv2.resize(mask.astype(np.uint8), (sight, sight))
+            outlook[mask] += entity.color
+
+        return outlook.T
