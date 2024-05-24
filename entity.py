@@ -1,9 +1,8 @@
 from utils import *
-import random
 import globals
 import numpy as np
 import neuralNetwork as nn
-from timer import timer_predict, timer_state
+from timer import timer_predict, timer_outlook
 
 
 class Entity:
@@ -19,6 +18,7 @@ class Entity:
         position=(100, 100),
         food=0,
         reward=0,
+        sight=0,
     ):
         self.name = name
         self.hp = hp
@@ -34,6 +34,7 @@ class Entity:
         self.last_action = 0
         self.previous_state = 0
         self.current_state = 0
+        self.sight = sight
 
         self.chosen = False
 
@@ -70,12 +71,10 @@ class Entity:
         if self.food < 0:
             self.hp -= globals.starving_damage
 
-        timer_state.tic()
-        state = np.reshape(outlook, (1, -1))
+        state = np.reshape(outlook, (-1,))
         #maybe add random to that
-        state = np.concatenate((state, np.array([[self.hp, self.food]])), axis=1)
+        state = np.concatenate((state, np.array([self.hp, self.food])))
         move = self.brain.predict(state)
-        timer_state.toc()
 
         # movementId = self.brain.predict(state=self.get_state(**entitiesDict))
         # # movementId = self.model.decide(state=[0, 434, 403, 5.05, 20, 185, 4.154198871677794, 124, 174, 6], verbose = 0)

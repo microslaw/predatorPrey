@@ -25,9 +25,10 @@ class Timer:
     def stats(self):
         print(f"Total time: {self.total_time/1000} s")
         print(f"Total calls: {self.total_calls}")
-        print(f"Average time: {((self.total_time/np.power(10, self.precision)) / self.total_calls)} s")
+        print(f"Average time: {((self.total_time/np.power(10, self.precision)) / self.total_calls)} s\n")
 
 timer_predict = Timer()
-timer_state = Timer()
+timer_outlook = Timer()
 timer_total = Timer()
 timer_fit = Timer()
+timer_collisions = Timer()

@@ -1,13 +1,12 @@
 from wolf import Wolf
 from sheep import Sheep
 from grass import Grass
-from utils import distance_kartesian, distance_manhattan
+from utils import distance_kartesian, distance_manhattan, generate_input_from_sight
+from display import Display
 import globals
 import random
-from timer import timer_fit, timer_predict
+from timer import timer_fit, timer_predict, timer_outlook, timer_collisions
 import numpy as np
-import cv2
-from neuralNetwork import NeuralNetwork as nn
 
 
 class Game:
@@ -65,15 +64,30 @@ class Game:
             # print(f"{sheep.name} ate {grass.name}")
             return grass
 
-    def __init__(self, randomStart, sheepCount=10, wolfCount=5, grassCount=3):
+    def __init__(
+        self,
+        display=None,
+        height=globals.game_height,
+        width=globals.game_width,
+    ):
         self.entities = []
         self.turnNo = 0
-        self.neural = nn([5_000, 20, 20, 3], [nn.leakyRelu, nn.leakyRelu, nn.leakyRelu])
+        self.height = height
+        self.width = width
+        if display is not None:
+            self.display = display
 
+    def setup(
+        self,
+        randomStart=True,
+        sheepCount=10,
+        wolfCount=5,
+        grassCount=3,
+    ):
         pinkSheep = Sheep(
             (
-                globals.game_width / 2,
-                globals.game_height / 2,
+                self.width // 2,
+                self.height // 2,
             )
         )
         pinkSheep.color = (255, 0, 255)
@@ -86,8 +100,8 @@ class Game:
                 self.entities.append(
                     Sheep(
                         (
-                            random.randint(0, globals.game_width),
-                            random.randint(0, globals.game_height),
+                            random.randint(0, self.width),
+                            random.randint(0, self.height),
                         )
                     )
                 )
@@ -95,8 +109,8 @@ class Game:
                 self.entities.append(
                     Wolf(
                         (
-                            random.randint(0, globals.game_width),
-                            random.randint(0, globals.game_height),
+                            random.randint(0, self.width),
+                            random.randint(0, self.height),
                         )
                     )
                 )
@@ -104,44 +118,51 @@ class Game:
                 self.entities.append(
                     Grass(
                         (
-                            random.randint(0, globals.game_width),
-                            random.randint(0, globals.game_height),
+                            random.randint(0, self.width),
+                            random.randint(0, self.height),
                         )
                     )
                 )
 
     def turn(self):
-        self.turnNo += 1
         for entity in self.entities:
-            entityDict = {
-                "wolfes": [e for e in self.entities if isinstance(e, Wolf)],
-                "sheeps": [e for e in self.entities if isinstance(e, Sheep)],
-                "grass": [e for e in self.entities if isinstance(e, Grass)],
-            }
             # print(f"Name: {entity.name}, current hp: {entity.hp}, current food: {entity.food}")
 
+            timer_outlook.tic()
+            outlook = self.get_outlook(entity.position, entity.sight)
+            timer_outlook.toc()
+
             timer_predict.tic()
-            self.get_outlook(entity.position, 50, 20)
-            self.neural.loadInput(np.random.uniform(0, 1, 5000))
-            self.neural.forward()
-            x = self.neural.readOutput()
+            entity.decide(outlook)
             timer_predict.toc()
 
-            entity.decide(entityDict)
+        timer_collisions.tic()
         self.check_collisions()
+        timer_collisions.toc()
 
         for entity in self.entities:
 
             timer_fit.tic()
-            self.neural.loadInput(np.random.uniform(0, 1, 5000))
-            self.neural.forward()
-            self.neural.backpropagation(np.random.randint(3), 0.0001, nn.mseLoss)
-            timer_fit.toc()
-
             entity.fit()
             entity.set_rewards(0)
+            timer_fit.toc()
 
         self.clean_dead()
+
+    def play(self, turns_max=-1):
+        # self.display.setup()
+        while turns_max != self.turnNo:
+            self.turn()
+            self.turnNo += 1
+
+            if self.display is not None:
+                self.display.update(self.entities, self)
+                if self.display.running == False:
+                    break
+
+            if self.get_sheeps_count() == 0 or self.get_wolfes_count() == 0:
+                break
+        self.entities = []
 
     def get_wolfes_count(self):
         return sum([isinstance(entity, Wolf) for entity in self.entities])
@@ -205,25 +226,26 @@ class Game:
 
     def get_outlook(self, position, sight, scale=1):
         # Initialize a numpy array of zeros
-        outlook = np.zeros((sight, sight, 3))
+        size = sight * 2 + 1
+        outlook = np.zeros((size, size, 3))
 
         # Iterate over the array of tuples
         for entity in self.entities:
             # Calculate the coordinates of the circle
-            Y, X = np.ogrid[:sight, :sight]
+            Y, X = np.ogrid[:size, :size]
             x, y = entity.position
             x -= position[0]
             y -= position[1]
 
             dist_from_center = np.sqrt(
-                (X - sight / 2 - x) ** 2 + (Y - sight / 2 - y) ** 2
+                (X - size / 2 - x) ** 2 + (Y - size / 2 - y) ** 2
             )
 
             # Create a mask for the circle
             mask = dist_from_center <= entity.size
 
             # Use the mask to set the corresponding values in the numpy array to 1
-            # mask = cv2.resize(mask.astype(np.uint8), (sight, sight))
+            # mask = cv2.resize(mask.astype(np.uint8), (size, size))
             outlook[mask] += entity.color
 
         return outlook.T

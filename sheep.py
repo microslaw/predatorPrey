@@ -19,6 +19,7 @@ class Sheep(Entity):
             position=parentPos,
             food=globals.entityParams_sheep_food,
             brain=Sheep.brain,
+            sight=globals.entityParams_sheep_sight,
         )
         Sheep.sheep_count += 1
 
@@ -33,7 +34,7 @@ class Sheep(Entity):
                     generate_input_from_sight(globals.entityParams_sheep_sight),
                     10,
                     10,
-                    4,
+                    globals.modelParams_output_shape,
                 ],
                 activationFunctions=[nn.leakyRelu, nn.leakyRelu, nn.leakyRelu],
             )

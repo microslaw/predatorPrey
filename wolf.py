@@ -19,6 +19,7 @@ class Wolf(Entity):
             position=parent_pos,
             food=globals.entityParams_wolf_food,
             brain=Wolf.brain,
+            sight=globals.entityParams_wolf_sight,
         )
         Wolf.wolfCount += 1
 
@@ -32,7 +33,7 @@ class Wolf(Entity):
                     generate_input_from_sight(globals.entityParams_wolf_sight),
                     10,
                     10,
-                    4,
+                    globals.modelParams_output_shape,
                 ],
                 activationFunctions=[nn.leakyRelu, nn.leakyRelu, nn.leakyRelu],
             )

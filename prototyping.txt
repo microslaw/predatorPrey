@@ -37,7 +37,7 @@ use dual models with freezing - more stable, hard to do
 
 
 Trials/tpyes:
-	1. add x and y to inputs
+1. add x and y to inputs - omited
 2. create ml framework	- done
 
 3. change input to cnn
@@ -57,13 +57,14 @@ showcase ideas:
 
 
 todo for 5-24:
-	- connect the model to the simulation, try making it learn
-	a big rewrite
+		connect the model to the simulation - done
+	try making it learn
+		a big rewrite - done
 	design test scenarios for the next day
 	maybe convolution
 	create a simpler enviroment
-	change sizes
-	pick final parameters for sight
+	change sizes - done
+		pick final parameters for sight - done
 	benchmark and try to optimize
 	check if new data needs to be loaded every step of backpropagation
 	batch processing
