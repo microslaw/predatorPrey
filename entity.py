@@ -2,7 +2,7 @@ from utils import *
 import random
 import globals
 import numpy as np
-from brain import Brain
+import neuralNetwork as nn
 from timer import timer_predict, timer_state
 
 
@@ -18,7 +18,6 @@ class Entity:
         color=(255, 255, 255),
         position=(100, 100),
         food=0,
-        movement_states=None,
         reward=0,
     ):
         self.name = name
@@ -30,24 +29,34 @@ class Entity:
         self.speed = speed
         self.color = color
         self.food = food
-        self.brain: Brain = brain
-        self.movement_states = movement_states
+        self.brain: nn.NeuralNetwork = brain
         self.reward = reward
         self.last_action = 0
         self.previous_state = 0
         self.current_state = 0
+
         self.chosen = False
 
     def attack(self, target):
         if distance_kartesian(self.position, target.position) <= globals.attack_range:
             target.hp -= self.damage
 
-    def move(self, x, y):
+    def move_to(self, x, y):
         self.position = (x, y)
 
     def move_by(self, dx, dy):
         x, y = self.position
         self.position = (x + dx, y + dy)
+
+    def perform_move(self, movement):
+        x, y, distance = movement
+        vector = x**2 + y**2
+        norm_x = x / vector
+        norm_y = y / vector
+
+        norm_distance = min(abs(distance), self.speed)
+
+        self.move_by(norm_x * norm_distance, norm_y * norm_distance)
 
     def is_alive(self):
         return self.hp > 0
@@ -55,28 +64,31 @@ class Entity:
     def take_damage(self, damage):
         self.hp -= damage
 
-    def decide(self, entitiesDict):
+    def decide(self, outlook):
         self.age += 1
         self.food -= globals.food_cost
         if self.food < 0:
             self.hp -= globals.starving_damage
 
         timer_state.tic()
-        self.get_state(**entitiesDict)
+        state = np.reshape(outlook, (1, -1))
+        #maybe add random to that
+        state = np.concatenate((state, np.array([[self.hp, self.food]])), axis=1)
+        move = self.brain.predict(state)
         timer_state.toc()
 
-        movementId = self.brain.decide(state=self.get_state(**entitiesDict))
-        # movementId = self.model.decide(state=[0, 434, 403, 5.05, 20, 185, 4.154198871677794, 124, 174, 6], verbose = 0)
-        movement = self.movement_states[movementId]  # type: ignore
-        self.last_action = movementId
-        self.previous_state = self.get_state(**entitiesDict)
+        # movementId = self.brain.predict(state=self.get_state(**entitiesDict))
+        # # movementId = self.model.decide(state=[0, 434, 403, 5.05, 20, 185, 4.154198871677794, 124, 174, 6], verbose = 0)
+        # movement = self.movement_states[movementId]  # type: ignore
+        # self.last_action = movementId
+        # self.previous_state = self.get_state(**entitiesDict)
         # movement = (
         #     random.randint(-self.speed, self.speed),
         #     random.randint(-self.speed, self.speed),
         # )
+        # self.current_state = self.get_state(**entitiesDict)
 
-        self.move_by(*movement)
-        self.current_state = self.get_state(**entitiesDict)
+        self.perform_move(move)
 
     def penalize_getting_killed(self):
         self.reward += globals.penalty_death
@@ -97,6 +109,7 @@ class Entity:
     def fit(self):
         if "Grass" in self.name:
             return
+        return
         action = self.last_action
         state = np.array([self.previous_state])
         next_state = np.array([self.current_state])
@@ -107,31 +120,6 @@ class Entity:
         # )
         self.brain.fit(state, action, reward, next_state, False)  # type: ignore
 
-    def get_state(self, wolfes, sheeps, grass):
-        """
-        wolf nearest x
-        wolf nearest y
-        sheep nearest x
-        sheep nearest y
-        grass nearest x
-        grass nearest y
-        wolf proximity
-        sheep proximity
-        grass proximity
-        self.hp
-        self.x
-        self.y
-        """
-        toReturn = [
-            *proximity_entities(self, wolfes, max_sight=100),
-            *proximity_entities(self, sheeps, max_sight=100),
-            *proximity_entities(self, grass, max_sight=100),
-            self.hp,
-            self.position[0],
-            self.position[1],
-        ]
-
-        return toReturn
 
     def get_hp(self):
         return self.hp

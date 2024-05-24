@@ -1,29 +1,38 @@
 from entity import Entity
-from brain import Brain
-from utils import generate_states
+from utils import generate_input_from_sight
 import globals
+import neuralNetwork as nn
 
 
 class Wolf(Entity):
     wolfCount = 0
-    movement_states = generate_states(globals.entityParams_wolf_speed) # type: ignore
-    # model = Model(
-    #     input_shape=globals.modelParams.input_shape,
-    #     output_shape=len(movement_states),
-    # )
-    brain = Brain.load(f".\\v{globals.version_no}\\wolfInitial.keras", len(movement_states))
+    brain = nn.NeuralNetwork()
 
     def __init__(self, parent_pos=(0, 0)):
         super().__init__(
             name=f"Wolf{Wolf.wolfCount}",
-            hp=10,
-            damage=5,
-            speed=globals.entityParams_wolf_speed, # type: ignore
-            size=10,
-            color=(255, 0, 0),
+            hp=globals.entityParams_wolf_hp,
+            damage=globals.entityParams_wolf_damage,
+            speed=globals.entityParams_wolf_speed,
+            size=globals.entityParams_wolf_size,
+            color=globals.entityParams_wolf_color,
             position=parent_pos,
-            food=100,
+            food=globals.entityParams_wolf_food,
             brain=Wolf.brain,
-            movement_states=Wolf.movement_states,
         )
         Wolf.wolfCount += 1
+
+    @staticmethod
+    def add_brain(brain=None):
+        if isinstance(brain, nn.NeuralNetwork):
+            Wolf.brain = brain
+        else:
+            Wolf.brain = nn.NeuralNetwork(
+                layerSizes=[
+                    generate_input_from_sight(globals.entityParams_wolf_sight),
+                    10,
+                    10,
+                    4,
+                ],
+                activationFunctions=[nn.leakyRelu, nn.leakyRelu, nn.leakyRelu],
+            )

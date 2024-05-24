@@ -26,6 +26,8 @@ def proximity_entities(center_entity, entities, max_sight=100):
 def generate_states(speed):
     return [(x, y) for x in range(-speed, speed + 1) for y in range(-speed, speed + 1)]
 
+def generate_input_from_sight(sight):
+    return (sight*2 + 1)**2 + 3
 
 def mse(y_true, y_pred):
     return np.mean(np.square(y_pred - y_true))

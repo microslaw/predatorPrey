@@ -1,29 +1,39 @@
 from entity import Entity
-from brain import Brain
-from utils import generate_states
+from utils import generate_input_from_sight
 import globals
+import neuralNetwork as nn
 
 
 class Sheep(Entity):
     sheep_count = 0
-    movement_states = generate_states(globals.entityParams_sheep_speed) # type: ignore
-    # model = Model(
-    #     input_shape=globals.modelParams.input_shape,
-    #     output_shape=len(movement_states),
-    # )
-    brain = Brain.load(f".\\v{globals.version_no}\\sheepInitial.keras", len(movement_states))
+    brain = nn.NeuralNetwork()
 
     def __init__(self, parentPos=(0, 0)):
         super().__init__(
             name=f"Sheep{Sheep.sheep_count}",
-            hp=6,
-            damage=2,
-            speed=globals.entityParams_sheep_speed, # type: ignore
-            size=5,
-            color=(0, 0, 255),
+            hp=globals.entityParams_sheep_hp,
+            damage=globals.entityParams_sheep_damage,
+            speed=globals.entityParams_sheep_speed,
+            size=globals.entityParams_sheep_size,
+            color=globals.entityParams_sheep_color,
             position=parentPos,
-            food=50,
+            food=globals.entityParams_sheep_food,
             brain=Sheep.brain,
-            movement_states=Sheep.movement_states,
         )
         Sheep.sheep_count += 1
+
+
+    @staticmethod
+    def add_brain(brain=None):
+        if isinstance(brain, nn.NeuralNetwork):
+            Sheep.brain = brain
+        else:
+            Sheep.brain = nn.NeuralNetwork(
+                layerSizes=[
+                    generate_input_from_sight(globals.entityParams_sheep_sight),
+                    10,
+                    10,
+                    4,
+                ],
+                activationFunctions=[nn.leakyRelu, nn.leakyRelu, nn.leakyRelu],
+            )

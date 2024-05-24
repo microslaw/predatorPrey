@@ -58,9 +58,12 @@ showcase ideas:
 
 todo for 5-24:
 	- connect the model to the simulation, try making it learn
+	a big rewrite
 	design test scenarios for the next day
 	maybe convolution
 	create a simpler enviroment
 	change sizes
 	pick final parameters for sight
 	benchmark and try to optimize
+	check if new data needs to be loaded every step of backpropagation
+	batch processing
