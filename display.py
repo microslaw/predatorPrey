@@ -47,12 +47,13 @@ class Display:
             if entity.chosen:
                 entity.position = (x + 1, y + 1)
 
-                outlook = game.get_outlook(entity.position, 100, 20)
-                print(outlook.shape)
-                outlook = np.transpose(outlook, (1, 2, 0))
+                outlook = game.get_outlook(entity.position, entity.sight)
                 outlook = outlook.astype(np.float32)
                 outlook = cv2.cvtColor(outlook, cv2.COLOR_BGR2RGB)
-                cv2.imshow("Animation", cv2.resize(outlook, (800, 800)))
+                cv2.imshow(
+                    "Animation",
+                    cv2.resize(outlook, (outlook.shape[0], outlook.shape[1])),
+                )
 
         pygame.display.flip()
         self.clock.tick(globals.tickrate)

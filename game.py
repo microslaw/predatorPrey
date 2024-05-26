@@ -1,12 +1,19 @@
 from wolf import Wolf
 from sheep import Sheep
 from grass import Grass
-from utils import distance_kartesian, distance_manhattan, generate_input_from_sight
-from display import Display
+from utils import distance_kartesian
+import cv2
 import globals
 import random
-from timer import timer_fit, timer_predict, timer_outlook, timer_collisions
+from timer import (
+    timer_fit,
+    timer_predict,
+    timer_outlook,
+    timer_collisions,
+    timer_outlook_global,
+)
 import numpy as np
+from entity import Entity
 
 
 class Game:
@@ -74,8 +81,12 @@ class Game:
         self.turnNo = 0
         self.height = height
         self.width = width
+        self.global_outlook = np.zeros((height, width, 3))
+        self.outlook_padding = 0
         if display is not None:
             self.display = display
+        else:
+            self.display = None
 
     def setup(
         self,
@@ -84,6 +95,8 @@ class Game:
         wolfCount=5,
         grassCount=3,
     ):
+        self.entities = []
+
         pinkSheep = Sheep(
             (
                 self.width // 2,
@@ -92,7 +105,6 @@ class Game:
         )
         pinkSheep.color = (255, 0, 255)
         pinkSheep.chosen = True
-
         self.entities.append(pinkSheep)
 
         if randomStart:
@@ -125,6 +137,11 @@ class Game:
                 )
 
     def turn(self):
+
+        timer_outlook_global.tic()
+        self.global_outlook = self.get_global_outlook()
+        timer_outlook_global.toc()
+
         for entity in self.entities:
             # print(f"Name: {entity.name}, current hp: {entity.hp}, current food: {entity.food}")
 
@@ -162,7 +179,8 @@ class Game:
 
             if self.get_sheeps_count() == 0 or self.get_wolfes_count() == 0:
                 break
-        self.entities = []
+        globals.game_no += 1
+        print(f"game {globals.game_no} finished")
 
     def get_wolfes_count(self):
         return sum([isinstance(entity, Wolf) for entity in self.entities])
@@ -194,58 +212,70 @@ class Game:
 
         self.entities = [entity for entity in self.entities if entity.is_alive()]
 
-    # sight is the number of bins. Scale is the size of the bin
-    def get_outlook2(self, position, sight, scale=1):
-        nearby_entities = []
-        for entity in self.entities:
-            if distance_manhattan(position, entity.position) < sight * scale:
-                nearby_entities.append(entity)
-
-        outlook = np.zeros((sight, sight, 3), dtype=np.uint8)
-        for entity in nearby_entities:
-            x, y = entity.position
-            x -= position[0]
-            y -= position[1]
-
-            x = int((x + sight * scale * 0.5) // scale)
-            y = int((y + sight * scale * 0.5) // scale)
-
-            Y, X = np.ogrid[: entity.size, : entity.size]
-            dist_from_center = distance_kartesian(
-                (X, Y), (entity.size // 2, entity.size // 2)
-            )
-            mask = dist_from_center <= entity.size // 2
-
-            x = min(max(0, x), sight - 1)
-            y = min(max(0, y), sight - 1)
-
-            # outlook[y, x] = entity.color if mask else (0, 0, 0)
-            outlook[y, x] = entity.color
-
-        return outlook.T
-
-    def get_outlook(self, position, sight, scale=1):
+    def get_outlook(self, position, sight):
         # Initialize a numpy array of zeros
-        size = sight * 2 + 1
-        outlook = np.zeros((size, size, 3))
+        x, y = position
 
-        # Iterate over the array of tuples
-        for entity in self.entities:
-            # Calculate the coordinates of the circle
-            Y, X = np.ogrid[:size, :size]
-            x, y = entity.position
-            x -= position[0]
-            y -= position[1]
+        x_start = int(x - sight + self.outlook_padding)
+        x_end = int(x + sight + self.outlook_padding + 1)
 
-            dist_from_center = np.sqrt(
-                (X - size / 2 - x) ** 2 + (Y - size / 2 - y) ** 2
+        y_start = int(y - sight + self.outlook_padding)
+        y_end = int(y + sight + 1 + self.outlook_padding)
+
+        a = self.global_outlook[
+            x_start:x_end,
+            y_start:y_end,
+        ]
+
+        if a.shape[0] != 2 * sight + 1 or a.shape[1] != 2 * sight + 1:
+            print("invalid shape")
+            # a = np.zeros((2 * sight + 1, 2 * sight + 1, 3))
+
+        return a
+
+    def get_global_outlook(self, scale=1):
+        # Initialize a numpy array of zeros
+        self.outlook_padding = (
+            int(
+                max(
+                    globals.entityParams_sheep_sight,
+                    globals.entityParams_wolf_sight,
+                    max([entity.size for entity in self.entities]),
+                )
             )
+            + 1
+        )
+        # max(globals.entityParams_wolf_sight, globals.entityParams_sheep_sight)
 
-            # Create a mask for the circle
-            mask = dist_from_center <= entity.size
+        h = globals.game_height
+        w = globals.game_width
+        outlook = np.zeros(
+            (w + 2 * self.outlook_padding, h + 2 * self.outlook_padding, 3)
+        )
+
+        for entity in self.entities:
+            size = int(entity.size)
+            # Calculate the coordinates of the circle
+            x, y = entity.position
+
+            padded_x = int(x + self.outlook_padding)
+            padded_y = int(y + self.outlook_padding)
+            X,Y = np.ogrid[
+                padded_x - size : min(padded_x + size, w + 2 * self.outlook_padding-1),
+                padded_y - size : min(padded_y + size, h + 2 * self.outlook_padding-1),
+            ]
+
+            dist_from_center = (X - padded_x+0.5) ** 2 + (Y - padded_y+0.5) ** 2
+            mask = dist_from_center <= size**2
 
             # Use the mask to set the corresponding values in the numpy array to 1
             # mask = cv2.resize(mask.astype(np.uint8), (size, size))
-            outlook[mask] += entity.color
+            colored_mask = np.zeros((2 * size, 2 * size, 3))
+            colored_mask[mask] = entity.color
 
-        return outlook.T
+            outlook[
+                padded_x - size : padded_x + size,
+                padded_y - size : padded_y + size,
+            ] += colored_mask
+
+        return outlook

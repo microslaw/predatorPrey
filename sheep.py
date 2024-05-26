@@ -1,6 +1,7 @@
 from entity import Entity
 from utils import generate_input_from_sight
 import globals
+import numpy as np
 import neuralNetwork as nn
 
 
@@ -17,12 +18,12 @@ class Sheep(Entity):
             size=globals.entityParams_sheep_size,
             color=globals.entityParams_sheep_color,
             position=parentPos,
-            food=globals.entityParams_sheep_food,
+            # food=globals.entityParams_sheep_food,
+            food=int(np.random.normal(globals.entityParams_sheep_food, 10)),
             brain=Sheep.brain,
             sight=globals.entityParams_sheep_sight,
         )
         Sheep.sheep_count += 1
-
 
     @staticmethod
     def add_brain(brain=None):

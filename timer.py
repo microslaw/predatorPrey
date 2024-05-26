@@ -29,6 +29,7 @@ class Timer:
 
 timer_predict = Timer()
 timer_outlook = Timer()
+timer_outlook_global = Timer()
 timer_total = Timer()
 timer_fit = Timer()
 timer_collisions = Timer()

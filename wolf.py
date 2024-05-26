@@ -2,6 +2,7 @@ from entity import Entity
 from utils import generate_input_from_sight
 import globals
 import neuralNetwork as nn
+import numpy as np
 
 
 class Wolf(Entity):
@@ -17,7 +18,8 @@ class Wolf(Entity):
             size=globals.entityParams_wolf_size,
             color=globals.entityParams_wolf_color,
             position=parent_pos,
-            food=globals.entityParams_wolf_food,
+            # food=globals.entityParams_wolf_food,
+            food=int(np.random.normal(globals.entityParams_wolf_food, 10)),
             brain=Wolf.brain,
             sight=globals.entityParams_wolf_sight,
         )

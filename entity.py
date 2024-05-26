@@ -43,11 +43,14 @@ class Entity:
             target.hp -= self.damage
 
     def move_to(self, x, y):
-        self.position = (x, y)
+        self.position = (
+            min(max(0, x), globals.game_width),
+            min(max(0, y), globals.game_height),
+            )
 
     def move_by(self, dx, dy):
         x, y = self.position
-        self.position = (x + dx, y + dy)
+        self.move_to(x + dx, y + dy)
 
     def perform_move(self, movement):
         x, y, distance = movement
