@@ -151,6 +151,9 @@ class Game:
         for entity in self.entities:
             # print(f"Name: {entity.name}, current hp: {entity.hp}, current food: {entity.food}")
 
+            if type(entity) is Grass:
+                continue
+
             timer_outlook.tic()
             # self.global_outlook = self.get_global_outlook()
             outlook = self.get_outlook(entity)
@@ -264,55 +267,32 @@ class Game:
             #     print("A")
 
             x, y = other_entity.position
-            x_vector = x - looker_x
-            y_vector = y - looker_y
+            x_vector = looker_x - x
+            y_vector = looker_y - y
             size = int(other_entity.size)
-            x_seen = x_vector + looker.sight
-            y_seen = y_vector + looker.sight
+            sight = looker.sight
+
+            # x_seen = x_vector + looker.sight
+            # y_seen = y_vector + looker.sight
 
             X_grid, Y_grid = np.ogrid[
-                max(x - size, 0) - x : min(x + size + 1, self.width) - x,
-                max(y - size, 0) - y : min(y + size + 1, self.height) - y,
+                x_vector - sight : x_vector + sight + 1,
+                y_vector - sight : y_vector + sight + 1,
             ]
+
             # Calculate the coordinates of the circle
             # Y, X = np.ogrid[:sight, :sight]
 
             dist_from_center = (X_grid) ** 2 + (Y_grid) ** 2
             mask = dist_from_center <= size**2
 
-            colored_mask = np.zeros((*(mask.shape), 3))
-            colored_mask[mask] = other_entity.color
+            outlook[mask] += other_entity.color
 
-            outlook_crop_start_x = max(x - size, 0) - x + x_seen
-            outlook_crop_end_x = min(x + size + 1, self.width) - x + x_seen
-            outlook_crop_start_y = max(y - size, 0) - y + y_seen
-            outlook_crop_end_y = min(y + size + 1, self.height) - y + y_seen
-
-            mask_size_x = mask.shape[0]
-            mask_size_y = mask.shape[1]
-
-
-            mask_crop_start_x = max(0, min(mask_size_x, -outlook_crop_start_x))
-            mask_crop_end_x = max(0, min(mask_size_x, outlook.shape[0]-outlook_crop_end_x))
-            mask_crop_start_y = max(0, min(mask_size_y, -outlook_crop_start_y))
-            mask_crop_end_y = max(0, min(mask_size_y, outlook.shape[1]-outlook_crop_end_y))
-
-
-            colored_mask = colored_mask[
-                mask_crop_start_x:mask_crop_end_x,
-                mask_crop_start_y:mask_crop_end_y,
-            ]
-
-
-            outlook[
-                max(outlook_crop_start_x, 0):max(outlook_crop_end_x, 0),
-                max(outlook_crop_start_y, 0):max(outlook_crop_end_y, 0),
-            ] += colored_mask
-
-            cv2.imwrite("outlook.png", outlook)
             x = 1
 
+            # cv2.imwrite("outlook.png", outlook)
         outlook = np.where(outlook > 0, 1, 0).astype(np.float64)
+        # outlook = np.flip(outlook, axis=1)
         outlook = np.transpose(outlook, (1, 0, 2))
         return outlook
 
