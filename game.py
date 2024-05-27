@@ -267,6 +267,8 @@ class Game:
             x_vector = x - looker_x
             y_vector = y - looker_y
             size = int(other_entity.size)
+            x_seen = x_vector + looker.sight
+            y_seen = y_vector + looker.sight
 
             X_grid, Y_grid = np.ogrid[
                 max(x - size, 0) - x : min(x + size + 1, self.width) - x,
@@ -276,32 +278,35 @@ class Game:
             # Y, X = np.ogrid[:sight, :sight]
 
             dist_from_center = (X_grid) ** 2 + (Y_grid) ** 2
-
-            # Create a mask for the circle
             mask = dist_from_center <= size**2
-
-            # Use the mask to set the corresponding values in the numpy array to 1
-            # mask = cv2.resize(mask.astype(np.uint8), (sight, sight))
 
             colored_mask = np.zeros((*(mask.shape), 3))
             colored_mask[mask] = other_entity.color
 
-            x_seen = x_vector + looker.sight
-            y_seen = y_vector + looker.sight
+            outlook_crop_start_x = max(x - size, 0) - x + x_seen
+            outlook_crop_end_x = min(x + size + 1, self.width) - x + x_seen
+            outlook_crop_start_y = max(y - size, 0) - y + y_seen
+            outlook_crop_end_y = min(y + size + 1, self.height) - y + y_seen
+
+            mask_size_x = mask.shape[0]
+            mask_size_y = mask.shape[1]
+
+
+            mask_crop_start_x = max(0, min(mask_size_x, -outlook_crop_start_x))
+            mask_crop_end_x = max(0, min(mask_size_x, outlook.shape[0]-outlook_crop_end_x))
+            mask_crop_start_y = max(0, min(mask_size_y, -outlook_crop_start_y))
+            mask_crop_end_y = max(0, min(mask_size_y, outlook.shape[1]-outlook_crop_end_y))
+
+
+            colored_mask = colored_mask[
+                mask_crop_start_x:mask_crop_end_x,
+                mask_crop_start_y:mask_crop_end_y,
+            ]
+
 
             outlook[
-                # x_seen - size : x_seen + size + 1,
-                # y_seen - size : y_seen + size + 1,
-                max(x - size, 0)
-                - x
-                + x_seen : min(x + size + 1, self.width)
-                - x
-                + x_seen,
-                max(y - size, 0)
-                - y
-                + y_seen : min(y + size + 1, self.height)
-                - y
-                + y_seen,
+                max(outlook_crop_start_x, 0):max(outlook_crop_end_x, 0),
+                max(outlook_crop_start_y, 0):max(outlook_crop_end_y, 0),
             ] += colored_mask
 
             cv2.imwrite("outlook.png", outlook)
