@@ -1,6 +1,6 @@
 from utils import generate_input_from_sight
 
-version_no = 3
+version_no = 7
 logging = False
 
 min_wolf_age = 100
@@ -59,7 +59,7 @@ entityParams_sheep_speed = entityParams_sheep_size * 2
 entityParams_sheep_sight = entityParams_sheep_speed * 5
 entityParams_sheep_color = (0, 0, 255)
 entityParams_sheep_food = 50
-entityParams_sheep_hp = 6
+entityParams_sheep_hp = 5
 entityParams_sheep_damage = 2
 entityParams_sheep_input = generate_input_from_sight(entityParams_sheep_sight)
 

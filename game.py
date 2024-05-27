@@ -1,7 +1,7 @@
 from wolf import Wolf
 from sheep import Sheep
 from grass import Grass
-from utils import distance_kartesian
+from utils import distance_kartesian, distance_manhattan
 import cv2
 import globals
 import random
@@ -90,7 +90,6 @@ class Game:
             self.display = None
         self.learning = learning
 
-
     def setup(
         self,
         randomStart=True,
@@ -100,23 +99,31 @@ class Game:
     ):
         self.entities = []
 
-        # pinkSheep = Wolf(
-        #     (
-        #         self.width // 2,
-        #         self.height // 2,
-        #     )
-        # )
-        # pinkSheep.color = (255, 0, 255)
-        # pinkSheep.chosen = True
-        # self.entities.append(pinkSheep)
+        test_sheep = Sheep(
+            (
+                10 + self.width // 2,
+                10 + self.height // 2,
+            )
+        )
+
+        whiteWolf = Wolf(
+            (
+                self.width // 2,
+                self.height // 2,
+            )
+        )
+        whiteWolf.chosen = True
+        whiteWolf.color = (255, 255, 255)
+        self.entities.append(whiteWolf)
+        self.entities.append(test_sheep)
 
         if randomStart:
             for _ in range(sheepCount):
                 self.entities.append(
                     Sheep(
                         (
-                            random.randint(0, self.width),
-                            random.randint(0, self.height),
+                            random.randint(self.width * 3 // 8, self.width * 5 // 8),
+                            random.randint(self.height * 3 // 8, self.height * 5 // 8),
                         ),
                     )
                 )
@@ -124,8 +131,8 @@ class Game:
                 self.entities.append(
                     Wolf(
                         (
-                            random.randint(0, self.width),
-                            random.randint(0, self.height),
+                            random.randint(self.width * 3 // 8, self.width * 5 // 8),
+                            random.randint(self.height * 3 // 8, self.height * 5 // 8),
                         )
                     )
                 )
@@ -133,24 +140,20 @@ class Game:
                 self.entities.append(
                     Grass(
                         (
-                            random.randint(0, self.width),
-                            random.randint(0, self.height),
+                            random.randint(self.width * 3 // 8, self.width * 5 // 8),
+                            random.randint(self.height * 3 // 8, self.height * 5 // 8),
                         )
                     )
                 )
 
     def turn(self):
 
-        timer_outlook_global.tic()
-        self.global_outlook = self.get_global_outlook()
-        timer_outlook_global.toc()
-
         for entity in self.entities:
             # print(f"Name: {entity.name}, current hp: {entity.hp}, current food: {entity.food}")
 
             timer_outlook.tic()
             # self.global_outlook = self.get_global_outlook()
-            outlook = self.get_outlook(entity.position, entity.sight)
+            outlook = self.get_outlook(entity)
             timer_outlook.toc()
 
             entity.act(outlook)
@@ -207,7 +210,7 @@ class Game:
         for body in bodies:
             if self.learning and type(body) is not Grass:
                 timer_fit.tic()
-                body.fit(done = True)
+                body.fit(done=True)
                 timer_fit.toc()
 
             self.entities.remove(body)
@@ -218,54 +221,95 @@ class Game:
 
         self.entities = [entity for entity in self.entities if entity.is_alive()]
 
-    def get_outlook(self, position, sight):
+    # def get_outlook_from_global(self, position, sight):
+    #     # Initialize a numpy array of zeros
+    #     x, y = position
+
+    #     x_start = int(x - sight + self.outlook_padding)
+    #     x_end = int(x + sight + self.outlook_padding + 1)
+
+    #     y_start = int(y - sight + self.outlook_padding)
+    #     y_end = int(y + sight + 1 + self.outlook_padding)
+
+    #     a = self.global_outlook[
+    #         x_start:x_end,
+    #         y_start:y_end,
+    #     ]
+
+    #     if a.shape[0] != 2 * sight + 1 or a.shape[1] != 2 * sight + 1:
+    #         print("invalid shape")
+    #         # a = np.zeros((2 * sight + 1, 2 * sight + 1, 3))
+
+    #     a = np.transpose(a, (1, 0, 2))
+    #     return a
+
+    def get_outlook(self, looker: Entity):
         # Initialize a numpy array of zeros
-        x, y = position
-
-        x_start = int(x - sight + self.outlook_padding)
-        x_end = int(x + sight + self.outlook_padding + 1)
-
-        y_start = int(y - sight + self.outlook_padding)
-        y_end = int(y + sight + 1 + self.outlook_padding)
-
-        a = self.global_outlook[
-            x_start:x_end,
-            y_start:y_end,
-        ]
-
-        if a.shape[0] != 2 * sight + 1 or a.shape[1] != 2 * sight + 1:
-            print("invalid shape")
-            # a = np.zeros((2 * sight + 1, 2 * sight + 1, 3))
-
-        a = np.transpose(a, (1, 0, 2))
-        return a
-
-    def get_outlook2(self, position, sight, scale=1):
-        # Initialize a numpy array of zeros
-        outlook = np.zeros((sight*2+1, sight*2+1, 3))
+        # looker.sight = 1
+        outlook = np.zeros((looker.sight * 2 + 1, looker.sight * 2 + 1, 3))
 
         # Iterate over the array of tuples
-        for entity in self.entities:
-            # Calculate the coordinates of the circle
-            Y, X = np.ogrid[:sight, :sight]
-            x, y = entity.position
-            x -= position[0]
-            y -= position[1]
+        looker_x, looker_y = looker.position
 
-            dist_from_center = np.sqrt(
-                (X - sight / 2 - x) ** 2 + (Y - sight / 2 - y) ** 2
-            )
+        for other_entity in self.entities:
+            if other_entity.is_alive() == False:
+                continue
+            # if other_entity == entity:
+            #     continue
+            distance = distance_manhattan(looker.position, other_entity.position)
+            # if distance > looker.sight - other_entity.size - 2:
+            #     continue
+
+            # if distance == looker.sight - other_entity.size - 2:
+            #     print("A")
+
+            x, y = other_entity.position
+            x_vector = x - looker_x
+            y_vector = y - looker_y
+            size = int(other_entity.size)
+
+            X_grid, Y_grid = np.ogrid[
+                max(x - size, 0) - x : min(x + size + 1, self.width) - x,
+                max(y - size, 0) - y : min(y + size + 1, self.height) - y,
+            ]
+            # Calculate the coordinates of the circle
+            # Y, X = np.ogrid[:sight, :sight]
+
+            dist_from_center = (X_grid) ** 2 + (Y_grid) ** 2
 
             # Create a mask for the circle
-            mask = dist_from_center <= entity.size
+            mask = dist_from_center <= size**2
 
             # Use the mask to set the corresponding values in the numpy array to 1
             # mask = cv2.resize(mask.astype(np.uint8), (sight, sight))
-            outlook[mask] += entity.color
+
+            colored_mask = np.zeros((*(mask.shape), 3))
+            colored_mask[mask] = other_entity.color
+
+            x_seen = x_vector + looker.sight
+            y_seen = y_vector + looker.sight
+
+            outlook[
+                # x_seen - size : x_seen + size + 1,
+                # y_seen - size : y_seen + size + 1,
+                max(x - size, 0)
+                - x
+                + x_seen : min(x + size + 1, self.width)
+                - x
+                + x_seen,
+                max(y - size, 0)
+                - y
+                + y_seen : min(y + size + 1, self.height)
+                - y
+                + y_seen,
+            ] += colored_mask
+
+            cv2.imwrite("outlook.png", outlook)
+            x = 1
 
         outlook = np.where(outlook > 0, 1, 0).astype(np.float64)
-
-        return outlook.T
+        outlook = np.transpose(outlook, (1, 0, 2))
+        return outlook
 
     def get_global_outlook(self, scale=1):
         # Initialize a numpy array of zeros
@@ -294,12 +338,14 @@ class Game:
 
             padded_x = int(x + self.outlook_padding)
             padded_y = int(y + self.outlook_padding)
-            X,Y = np.ogrid[
-                padded_x - size : min(padded_x + size, w + 2 * self.outlook_padding-1),
-                padded_y - size : min(padded_y + size, h + 2 * self.outlook_padding-1),
+            X, Y = np.ogrid[
+                padded_x
+                - size : min(padded_x + size, w + 2 * self.outlook_padding - 1),
+                padded_y
+                - size : min(padded_y + size, h + 2 * self.outlook_padding - 1),
             ]
 
-            dist_from_center = (X - padded_x+0.5) ** 2 + (Y - padded_y+0.5) ** 2
+            dist_from_center = (X - padded_x + 0.5) ** 2 + (Y - padded_y + 0.5) ** 2
             mask = dist_from_center <= size**2
 
             # Use the mask to set the corresponding values in the numpy array to 1

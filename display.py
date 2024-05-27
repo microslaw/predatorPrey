@@ -43,16 +43,26 @@ class Display:
             )
 
             if entity.chosen:
-                entity.position = (x + 1, y + 1)
+                entity.position = (x - 1, y - 1)
+                # pygame.draw.circle(
+                #     self.screen,
+                #     (255, 255, 255),
+                #     (x / self.scale, y / self.scale),
+                #     max(1, entity.size / self.scale),
+                # )
                 # print(entity.previous_estimates)
 
-                outlook = game.get_outlook(entity.position, entity.sight)
+                entity.sight = 100
+                outlook = game.get_outlook(entity)
+                entity.sight = 30
                 outlook = outlook.astype(np.float32)
                 outlook = cv2.cvtColor(outlook, cv2.COLOR_BGR2RGB)
                 cv2.imshow(
                     "Animation",
                     cv2.resize(outlook, (outlook.shape[0], outlook.shape[1])),
                 )
+
+
 
         pygame.display.flip()
         self.clock.tick(globals.tickrate)

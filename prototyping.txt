@@ -58,15 +58,20 @@ showcase ideas:
 
 todo:
 		connect the model to the simulation - done
-	try making it learn
+		try making it learn
 		a big rewrite - done
-	design test scenarios for the next day
-	maybe convolution
-	create a simpler enviroment
 		change sizes - done
 		pick final parameters for sight - done
 		benchmark and try to optimize
-	check if new data needs to be loaded every step of backpropagation
-	batch processing
 		improve reward system
 		add self-made model
+
+	batch processing
+	dqn?
+	create self-made model
+	upgrade reward view
+
+	maybe convolution
+	create a simpler enviroment
+	update rewards
+	statistics
