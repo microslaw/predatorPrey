@@ -23,7 +23,7 @@ def proximity_entities(center_entity, entities, max_sight=100):
     return (proximity, nearest_x, nearest_y)
 
 
-def generate_states(speed):
+def generate_outputs(speed):
     return [(x, y) for x in range(-speed, speed + 1) for y in range(-speed, speed + 1)]
 
 def generate_input_from_sight(sight):

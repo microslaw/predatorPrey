@@ -1,6 +1,6 @@
 import numpy as np
-from timer import Timer
 import pickle
+import globals
 
 
 neuronMax = 1
@@ -115,6 +115,23 @@ class NeuralNetwork:
         self.loadInput(input)
         self.forward()
         self.backpropagation(target, learning_rate, lossFunction)
+
+
+    def qlearn_cyclic(self, reward, previous_estimates, previous_state, current_state, done):
+
+        previous_pick = np.argmax(previous_estimates)
+        target = previous_estimates
+
+        if done:
+            target[previous_pick] = reward
+        else:
+            target[previous_pick] = reward + globals.modelParams_gamma * np.argmax(
+                self.predict(current_state)
+            )
+        #epsilon greedy has been moved to entity.perform move for implementation reasons
+
+        self.train(previous_state, target, globals.modelParams_learning_rate, mseLoss)
+
 
     def save(self, filename):
         with open(filename, "wb") as wfile:

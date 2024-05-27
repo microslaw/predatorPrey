@@ -1,5 +1,5 @@
 from entity import Entity
-from utils import generate_input_from_sight
+from utils import generate_input_from_sight, generate_outputs
 import globals
 import neuralNetwork as nn
 import numpy as np
@@ -9,7 +9,7 @@ class Wolf(Entity):
     wolfCount = 0
     brain = nn.NeuralNetwork()
 
-    def __init__(self, parent_pos=(0, 0)):
+    def __init__(self, parent_pos=(0, 0), learning=True):
         super().__init__(
             name=f"Wolf{Wolf.wolfCount}",
             hp=globals.entityParams_wolf_hp,
@@ -22,6 +22,7 @@ class Wolf(Entity):
             food=int(np.random.normal(globals.entityParams_wolf_food, 10)),
             brain=Wolf.brain,
             sight=globals.entityParams_wolf_sight,
+            learning=learning,
         )
         Wolf.wolfCount += 1
 
@@ -34,8 +35,7 @@ class Wolf(Entity):
                 layerSizes=[
                     generate_input_from_sight(globals.entityParams_wolf_sight),
                     10,
-                    10,
-                    globals.modelParams_output_shape,
+                    len(generate_outputs(globals.entityParams_wolf_speed)),
                 ],
-                activationFunctions=[nn.leakyRelu, nn.leakyRelu, nn.leakyRelu],
+                activationFunctions=[nn.leakyRelu, nn.leakyRelu],
             )

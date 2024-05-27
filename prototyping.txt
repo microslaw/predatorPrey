@@ -68,5 +68,5 @@ todo:
 		benchmark and try to optimize
 	check if new data needs to be loaded every step of backpropagation
 	batch processing
-	improve reward system
-	add self-made model
+		improve reward system
+		add self-made model

@@ -2,7 +2,7 @@ from utils import *
 import globals
 import numpy as np
 import neuralNetwork as nn
-from timer import timer_predict, timer_outlook
+from timer import timer_predict, timer_fit
 
 
 class Entity:
@@ -19,6 +19,7 @@ class Entity:
         food=0,
         reward=0,
         sight=0,
+        learning=True,
     ):
         self.name = name
         self.hp = hp
@@ -31,11 +32,10 @@ class Entity:
         self.food = food
         self.brain: nn.NeuralNetwork = brain
         self.reward = reward
-        self.last_action = 0
-        self.previous_state = 0
-        self.current_state = 0
+        self.previous_estimates = np.zeros(4)
         self.sight = sight
-
+        self.action_space = generate_outputs(self.speed)
+        self.learner = learning
         self.chosen = False
 
     def attack(self, target):
@@ -46,21 +46,20 @@ class Entity:
         self.position = (
             min(max(0, x), globals.game_width),
             min(max(0, y), globals.game_height),
-            )
+        )
 
     def move_by(self, dx, dy):
         x, y = self.position
         self.move_to(x + dx, y + dy)
 
-    def perform_move(self, movement):
-        x, y, distance = movement
-        vector = x**2 + y**2
-        norm_x = x / vector
-        norm_y = y / vector
+    def perform_move(self, estimates):
+        movement_id = np.argmax(estimates)
 
-        norm_distance = min(abs(distance), self.speed)
-
-        self.move_by(norm_x * norm_distance, norm_y * norm_distance)
+        if np.random.rand() < globals.modelParams_epsilon:
+            x, y = self.action_space[np.random.randint(0, len(self.action_space))]
+        else:
+            x, y = self.action_space[movement_id]
+        self.move_by(x, y)
 
     def is_alive(self):
         return self.hp > 0
@@ -68,16 +67,28 @@ class Entity:
     def take_damage(self, damage):
         self.hp -= damage
 
+    def act(self, outlook):
+        move = self.decide(outlook)
+        self.perform_move(move)
+        if self.learner:
+            timer_fit.tic()
+            self.fit(outlook)
+            timer_fit.toc()
+
     def decide(self, outlook):
         self.age += 1
         self.food -= globals.food_cost
         if self.food < 0:
             self.hp -= globals.starving_damage
 
-        state = np.reshape(outlook, (-1,))
-        #maybe add random to that
-        state = np.concatenate((state, np.array([self.hp, self.food])))
+
+
+        timer_predict.tic()
+        state = self.get_state(outlook)
+        self.previous_state = state
         move = self.brain.predict(state)
+        self.previous_estimates = move
+        timer_predict.toc()
 
         # movementId = self.brain.predict(state=self.get_state(**entitiesDict))
         # # movementId = self.model.decide(state=[0, 434, 403, 5.05, 20, 185, 4.154198871677794, 124, 174, 6], verbose = 0)
@@ -91,6 +102,11 @@ class Entity:
         # self.current_state = self.get_state(**entitiesDict)
 
         self.perform_move(move)
+
+    def get_state(self, outlook):
+        state = np.reshape(outlook, (-1,))
+        state = np.concatenate((state, np.array([self.hp, self.food])))
+        return state
 
     def penalize_getting_killed(self):
         self.reward += globals.penalty_death
@@ -108,20 +124,19 @@ class Entity:
     def set_rewards(self, value):
         self.reward = value
 
-    def fit(self):
+    def fit(self, outlook=None, done=False):
         if "Grass" in self.name:
             return
-        return
-        action = self.last_action
-        state = np.array([self.previous_state])
-        next_state = np.array([self.current_state])
-        self.reward_high_hp()
-        reward = self.reward
-        # print(
-        #     f"Name: {self.name}, current hp: {self.hp}, current food: {self.food}, self reward: {self.reward}, reward: {reward}"
-        # )
-        self.brain.fit(state, action, reward, next_state, False)  # type: ignore
 
+        self.reward_high_hp()
+        self.brain.qlearn_cyclic(
+            reward=self.reward,
+            previous_estimates=self.previous_estimates,
+            previous_state=self.previous_state,
+            current_state=self.get_state(outlook) if outlook is not None else None,
+            done=done,
+        )
+        self.reward = 0
 
     def get_hp(self):
         return self.hp

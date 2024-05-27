@@ -76,6 +76,7 @@ class Game:
         display=None,
         height=globals.game_height,
         width=globals.game_width,
+        learning=True,
     ):
         self.entities = []
         self.turnNo = 0
@@ -87,6 +88,8 @@ class Game:
             self.display = display
         else:
             self.display = None
+        self.learning = learning
+
 
     def setup(
         self,
@@ -97,7 +100,7 @@ class Game:
     ):
         self.entities = []
 
-        pinkSheep = Sheep(
+        pinkSheep = Wolf(
             (
                 self.width // 2,
                 self.height // 2,
@@ -114,7 +117,7 @@ class Game:
                         (
                             random.randint(0, self.width),
                             random.randint(0, self.height),
-                        )
+                        ),
                     )
                 )
             for _ in range(wolfCount):
@@ -149,24 +152,20 @@ class Game:
             outlook = self.get_outlook(entity.position, entity.sight)
             timer_outlook.toc()
 
-            timer_predict.tic()
-            entity.decide(outlook)
-            timer_predict.toc()
+            entity.act(outlook)
 
         timer_collisions.tic()
         self.check_collisions()
         timer_collisions.toc()
 
-        for entity in self.entities:
-
-            timer_fit.tic()
-            entity.fit()
-            entity.set_rewards(0)
-            timer_fit.toc()
-
         self.clean_dead()
+        if self.learning:
+            globals.modelParams_epsilon = max(
+                globals.modelParams_epsilon * globals.modelParams_epsilon_decay,
+                globals.modelParams_epsilon_min,
+            )
 
-    def play(self, turns_max=-1):
+    def play(self, turns_max=1000):
         # self.display.setup()
         while turns_max != self.turnNo:
             self.turn()
@@ -203,7 +202,13 @@ class Game:
 
     def clean_dead(self):
         bodies = [entity for entity in self.entities if not entity.is_alive()]
+
         for body in bodies:
+            if self.learning and type(body) is not Grass:
+                timer_fit.tic()
+                body.fit(done = True)
+                timer_fit.toc()
+
             self.entities.remove(body)
             if isinstance(body, Wolf):
                 self.entities.append(Grass(body.position, globals.wolf_grass_size))
@@ -231,6 +236,7 @@ class Game:
             print("invalid shape")
             # a = np.zeros((2 * sight + 1, 2 * sight + 1, 3))
 
+        a = np.transpose(a, (1, 0, 2))
         return a
 
     def get_global_outlook(self, scale=1):
@@ -277,5 +283,7 @@ class Game:
                 padded_x - size : padded_x + size,
                 padded_y - size : padded_y + size,
             ] += colored_mask
+
+            outlook = np.where(outlook > 0, 1, 0).astype(np.float64)
 
         return outlook

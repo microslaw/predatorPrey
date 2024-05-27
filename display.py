@@ -1,7 +1,5 @@
 import pygame
-from grass import Grass
 import globals
-from timer import timer_predict, timer_outlook, timer_total
 import cv2
 import numpy as np
 
@@ -46,6 +44,7 @@ class Display:
 
             if entity.chosen:
                 entity.position = (x + 1, y + 1)
+                print(entity.previous_estimates)
 
                 outlook = game.get_outlook(entity.position, entity.sight)
                 outlook = outlook.astype(np.float32)
