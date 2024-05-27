@@ -44,7 +44,7 @@ class Display:
 
             if entity.chosen:
                 entity.position = (x + 1, y + 1)
-                print(entity.previous_estimates)
+                # print(entity.previous_estimates)
 
                 outlook = game.get_outlook(entity.position, entity.sight)
                 outlook = outlook.astype(np.float32)

@@ -100,15 +100,15 @@ class Game:
     ):
         self.entities = []
 
-        pinkSheep = Wolf(
-            (
-                self.width // 2,
-                self.height // 2,
-            )
-        )
-        pinkSheep.color = (255, 0, 255)
-        pinkSheep.chosen = True
-        self.entities.append(pinkSheep)
+        # pinkSheep = Wolf(
+        #     (
+        #         self.width // 2,
+        #         self.height // 2,
+        #     )
+        # )
+        # pinkSheep.color = (255, 0, 255)
+        # pinkSheep.chosen = True
+        # self.entities.append(pinkSheep)
 
         if randomStart:
             for _ in range(sheepCount):
@@ -149,6 +149,7 @@ class Game:
             # print(f"Name: {entity.name}, current hp: {entity.hp}, current food: {entity.food}")
 
             timer_outlook.tic()
+            # self.global_outlook = self.get_global_outlook()
             outlook = self.get_outlook(entity.position, entity.sight)
             timer_outlook.toc()
 
@@ -179,7 +180,7 @@ class Game:
             if self.get_sheeps_count() == 0 or self.get_wolfes_count() == 0:
                 break
         globals.game_no += 1
-        print(f"game {globals.game_no} finished")
+        # print(f"game {globals.game_no} finished")
 
     def get_wolfes_count(self):
         return sum([isinstance(entity, Wolf) for entity in self.entities])
@@ -238,6 +239,33 @@ class Game:
 
         a = np.transpose(a, (1, 0, 2))
         return a
+
+    def get_outlook2(self, position, sight, scale=1):
+        # Initialize a numpy array of zeros
+        outlook = np.zeros((sight*2+1, sight*2+1, 3))
+
+        # Iterate over the array of tuples
+        for entity in self.entities:
+            # Calculate the coordinates of the circle
+            Y, X = np.ogrid[:sight, :sight]
+            x, y = entity.position
+            x -= position[0]
+            y -= position[1]
+
+            dist_from_center = np.sqrt(
+                (X - sight / 2 - x) ** 2 + (Y - sight / 2 - y) ** 2
+            )
+
+            # Create a mask for the circle
+            mask = dist_from_center <= entity.size
+
+            # Use the mask to set the corresponding values in the numpy array to 1
+            # mask = cv2.resize(mask.astype(np.uint8), (sight, sight))
+            outlook[mask] += entity.color
+
+        outlook = np.where(outlook > 0, 1, 0).astype(np.float64)
+
+        return outlook.T
 
     def get_global_outlook(self, scale=1):
         # Initialize a numpy array of zeros
