@@ -18,7 +18,6 @@ class Sheep(Entity):
             size=globals.entityParams_sheep_size,
             color=globals.entityParams_sheep_color,
             position=parentPos,
-            # food=globals.entityParams_sheep_food,
             food=int(np.random.normal(globals.entityParams_sheep_food, 10)),
             brain=Sheep.brain,
             sight=globals.entityParams_sheep_sight,

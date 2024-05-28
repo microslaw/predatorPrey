@@ -41,8 +41,7 @@ modelParams_gamma = 0.95
 modelParams_epsilon = 0.1
 modelParams_epsilon_min = 0.00001
 modelParams_epsilon_decay = 0.995
-modelParams_learning_rate = 0.000001
-# modelParams_learning_rate = 0.01
+modelParams_learning_rate = 0.00001
 modelParams_output_shape = 3
 
 modelRewards_sheep_food_modifier=1
