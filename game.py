@@ -115,7 +115,7 @@ class Game:
         )
         whiteWolf.chosen = True
         whiteWolf.color = (255, 255, 255)
-        whiteWolf.food = 10 * globals.min_wolf_food
+        # whiteWolf.food = 10 * globals.min_wolf_food
         self.entities.append(whiteWolf)
         self.entities.append(test_sheep)
 
@@ -161,7 +161,7 @@ class Game:
             outlook = self.get_outlook(entity)
             timer_outlook.toc()
 
-            entity.act(outlook)
+            entity.act(outlook, self.get_entity_dict())
 
         timer_collisions.tic()
         self.check_collisions()
@@ -209,13 +209,23 @@ class Game:
                         if result is not None:
                             self.entities.append(result)
 
+
+    def get_entity_dict(self):
+        entityDict = {
+            "wolfes": [e for e in self.entities if isinstance(e, Wolf)],
+            "sheeps": [e for e in self.entities if isinstance(e, Sheep)],
+            "grass": [e for e in self.entities if isinstance(e, Grass)],
+        }
+        return entityDict
+
     def clean_dead(self):
         bodies = [entity for entity in self.entities if not entity.is_alive()]
 
         for body in bodies:
             if self.learning and type(body) is not Grass:
                 timer_fit.tic()
-                body.fit(done=True)
+                entityDict = self.get_entity_dict()
+                body.fit(done=True, entityDict=entityDict)
                 timer_fit.toc()
 
             self.entities.remove(body)

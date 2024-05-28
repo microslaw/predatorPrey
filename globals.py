@@ -23,7 +23,7 @@ window_width = 800
 game_height = 500
 game_width = 800
 
-tickrate = 30
+tickrate = 10
 
 sheep_grass_size = 15
 wolf_grass_size = 20

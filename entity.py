@@ -79,12 +79,12 @@ class Entity:
     def take_damage(self, damage):
         self.hp -= damage
 
-    def act(self, outlook):
+    def act(self, outlook, entityDict):
         move = self.decide(outlook)
         self.perform_move(move)
         if self.learner:
             timer_fit.tic()
-            self.fit(outlook)
+            self.fit(outlook, entityDict=entityDict)
             timer_fit.toc()
 
     def decide(self, outlook):
@@ -134,11 +134,12 @@ class Entity:
     def set_rewards(self, value):
         self.reward = value
 
-    def fit(self, outlook=None, done=False):
+    def fit(self, outlook=None, done=False, entityDict=None):
         if "Grass" in self.name:
             return
 
         self.reward_high_hp()
+        self.reward_close_proximity(entityDict)
         self.brain.qlearn_cyclic(
             reward=self.reward,
             previous_estimates=self.previous_estimates,
@@ -153,6 +154,53 @@ class Entity:
 
     def get_food(self):
         return self.food
+
+    def find_closest_wolf(self, entityDict):
+        closest_dist = 1000000000
+        if "Wolf" in self.name:
+            return 0
+        for category, objects in entityDict.items():
+            for entity in objects:
+                if "Wolf" in entity.name:
+                    dist_to_wolf = distance_kartesian(self.position, entity.position)
+                    if dist_to_wolf < closest_dist:
+                        closest_dist = dist_to_wolf
+        return closest_dist
+
+    def find_closest_sheep(self, entityDict):
+        closest_dist = 1000000000
+        if "Sheep" in self.name:
+            return 0
+        for category, objects in entityDict.items():
+            for entity in objects:
+                if "Sheep" in entity.name:
+                    dist_to_sheep = distance_kartesian(self.position, entity.position)
+                    if dist_to_sheep < closest_dist:
+                        closest_dist = dist_to_sheep
+        return closest_dist
+
+    def find_closest_grass(self, entityDict):
+        closest_dist = 1000000000
+        if "Wolf" in self.name:
+            return 0
+        for category, objects in entityDict.items():
+            for entity in objects:
+                if "Grass" in entity.name:
+                    dist_to_grass = distance_kartesian(self.position, entity.position)
+                    if dist_to_grass < closest_dist:
+                        closest_dist = dist_to_grass
+        return closest_dist
+
+    def reward_close_proximity(self, entityDict):
+        wolf_distance = self.find_closest_wolf(entityDict)
+        sheep_distance = self.find_closest_sheep(entityDict)
+        grass_distance = self.find_closest_grass(entityDict)
+        if wolf_distance != 0:
+            self.reward -= 10 / wolf_distance
+        if sheep_distance != 0:
+            self.reward += 10 / sheep_distance
+        if grass_distance != 0:
+            self.reward += 10 / grass_distance
 
     def __str__(self):
         return f"{self.name} has {self.hp} HP and {self.damage} damage"

@@ -98,6 +98,7 @@ class Display:
 
         predicted_rewards[best_x, best_y] = [0, 255, 0]
         predicted_rewards = predicted_rewards.transpose(1, 0, 2)
+        predicted_rewards = np.flip(predicted_rewards, 1)
         predicted_rewards = cv2.resize(
             predicted_rewards, predicted_rewards.shape[0:2]
         ).astype(np.uint8)
