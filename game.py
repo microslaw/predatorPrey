@@ -105,7 +105,9 @@ class Game:
             (
                 self.width // 2,
                 self.height // 2,
-            )
+            ),
+            learning=self.learning,
+
         )
         whiteWolf.chosen = True
         whiteWolf.color = (255, 255, 255)
@@ -120,6 +122,7 @@ class Game:
                             random.randint(self.width * 3 // 8, self.width * 5 // 8),
                             random.randint(self.height * 3 // 8, self.height * 5 // 8),
                         ),
+                        learning=self.learning,
                     )
                 )
             for _ in range(wolfCount):
@@ -128,7 +131,8 @@ class Game:
                         (
                             random.randint(self.width * 3 // 8, self.width * 5 // 8),
                             random.randint(self.height * 3 // 8, self.height * 5 // 8),
-                        )
+                        ),
+                        learning=self.learning,
                     )
                 )
             for _ in range(grassCount):
@@ -137,7 +141,7 @@ class Game:
                         (
                             random.randint(self.width * 3 // 8, self.width * 5 // 8),
                             random.randint(self.height * 3 // 8, self.height * 5 // 8),
-                        )
+                        ),
                     )
                 )
 
