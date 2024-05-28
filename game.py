@@ -98,6 +98,7 @@ class Game:
         grassCount=3,
     ):
         self.entities = []
+        self.turnNo = 0
 
         test_sheep = Sheep(
             (
@@ -114,6 +115,7 @@ class Game:
         )
         whiteWolf.chosen = True
         whiteWolf.color = (255, 255, 255)
+        whiteWolf.food = 10 * globals.min_wolf_food
         self.entities.append(whiteWolf)
         self.entities.append(test_sheep)
 
@@ -172,7 +174,7 @@ class Game:
                 globals.modelParams_epsilon_min,
             )
 
-    def play(self, turns_max=1000):
+    def play(self, turns_max=200):
         # self.display.setup()
         while turns_max != self.turnNo:
             self.turn()

@@ -66,8 +66,12 @@ todo:
 		improve reward system
 		add self-made model
 
-	batch processing
-	dqn?
+
+	nope:
+		batch processing
+		dqn?
+
+
 	create self-made model
 	upgrade reward view
 

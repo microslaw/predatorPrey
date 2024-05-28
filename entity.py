@@ -43,12 +43,23 @@ class Entity:
             target.hp -= self.damage
 
     def move_to(self, x, y):
-        self.position = (
-            min(max(0, x), globals.game_width),
-            min(max(0, y), globals.game_height),
-        )
+        if x > globals.game_width:
+            x -= globals.game_width
+
+        if y > globals.game_height:
+            y -= globals.game_height
+
+        if x < 0:
+            x += globals.game_width
+
+        if y < 0:
+            y += globals.game_height
+
+        self.position = (x, y)
 
     def move_by(self, dx, dy):
+        if self.chosen:
+            print(f"Moving by {dx}, {dy}")
         x, y = self.position
         self.move_to(x + dx, y + dy)
 
@@ -59,6 +70,7 @@ class Entity:
             x, y = self.action_space[np.random.randint(0, len(self.action_space))]
         else:
             x, y = self.action_space[movement_id]
+        self.last_move = (x, y)
         self.move_by(x, y)
 
     def is_alive(self):
@@ -80,8 +92,6 @@ class Entity:
         self.food -= globals.food_cost
         if self.food < 0:
             self.hp -= globals.starving_damage
-
-
 
         timer_predict.tic()
         state = self.get_state(outlook)
