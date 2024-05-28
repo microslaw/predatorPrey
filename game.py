@@ -2,15 +2,12 @@ from wolf import Wolf
 from sheep import Sheep
 from grass import Grass
 from utils import distance_kartesian, distance_manhattan
-import cv2
 import globals
 import random
 from timer import (
     timer_fit,
-    timer_predict,
     timer_outlook,
     timer_collisions,
-    timer_outlook_global,
 )
 import numpy as np
 from entity import Entity
@@ -154,7 +151,6 @@ class Game:
                 continue
 
             timer_outlook.tic()
-            # self.global_outlook = self.get_global_outlook()
             outlook = self.get_outlook(entity)
             entity.act(outlook, self.get_entity_dict())
             timer_outlook.toc()
@@ -172,7 +168,6 @@ class Game:
             )
 
     def play(self, turns_max=200):
-        # self.display.setup()
         while turns_max != self.turnNo:
             self.turn()
             self.turnNo += 1
@@ -185,7 +180,6 @@ class Game:
             if self.get_sheeps_count() == 0 or self.get_wolfes_count() == 0:
                 break
         globals.game_no += 1
-        # print(f"game {globals.game_no} finished")
 
     def get_wolfes_count(self):
         return sum([isinstance(entity, Wolf) for entity in self.entities])
@@ -233,34 +227,9 @@ class Game:
 
         self.entities = [entity for entity in self.entities if entity.is_alive()]
 
-    # def get_outlook_from_global(self, position, sight):
-    #     # Initialize a numpy array of zeros
-    #     x, y = position
-
-    #     x_start = int(x - sight + self.outlook_padding)
-    #     x_end = int(x + sight + self.outlook_padding + 1)
-
-    #     y_start = int(y - sight + self.outlook_padding)
-    #     y_end = int(y + sight + 1 + self.outlook_padding)
-
-    #     a = self.global_outlook[
-    #         x_start:x_end,
-    #         y_start:y_end,
-    #     ]
-
-    #     if a.shape[0] != 2 * sight + 1 or a.shape[1] != 2 * sight + 1:
-    #         print("invalid shape")
-    #         # a = np.zeros((2 * sight + 1, 2 * sight + 1, 3))
-
-    #     a = np.transpose(a, (1, 0, 2))
-    #     return a
-
     def get_outlook(self, looker: Entity):
-        # Initialize a numpy array of zeros
-        # looker.sight = 1
         outlook = np.zeros((looker.sight * 2 + 1, looker.sight * 2 + 1, 3))
 
-        # Iterate over the array of tuples
         looker_x, looker_y = looker.position
 
         for other_entity in self.entities:
@@ -272,86 +241,23 @@ class Game:
             # if distance > looker.sight - other_entity.size - 2:
             #     continue
 
-            # if distance == looker.sight - other_entity.size - 2:
-            #     print("A")
-
             x, y = other_entity.position
             x_vector = looker_x - x
             y_vector = looker_y - y
             size = int(other_entity.size)
             sight = looker.sight
 
-            # x_seen = x_vector + looker.sight
-            # y_seen = y_vector + looker.sight
-
             X_grid, Y_grid = np.ogrid[
                 x_vector - sight : x_vector + sight + 1,
                 y_vector - sight : y_vector + sight + 1,
             ]
-
-            # Calculate the coordinates of the circle
-            # Y, X = np.ogrid[:sight, :sight]
 
             dist_from_center = (X_grid) ** 2 + (Y_grid) ** 2
             mask = dist_from_center <= size**2
 
             outlook[mask] += other_entity.color
 
-            x = 1
-
-            # cv2.imwrite("outlook.png", outlook)
         outlook = np.where(outlook > 0, 1, 0).astype(np.float64)
-        # outlook = np.flip(outlook, axis=1)
         outlook = np.transpose(outlook, (1, 0, 2))
         return outlook
 
-    def get_global_outlook(self, scale=1):
-        # Initialize a numpy array of zeros
-        self.outlook_padding = (
-            int(
-                max(
-                    globals.entityParams_sheep_sight,
-                    globals.entityParams_wolf_sight,
-                    max([entity.size for entity in self.entities]),
-                )
-            )
-            + 1
-        )
-        # max(globals.entityParams_wolf_sight, globals.entityParams_sheep_sight)
-
-        h = globals.game_height
-        w = globals.game_width
-        outlook = np.zeros(
-            (w + 2 * self.outlook_padding, h + 2 * self.outlook_padding, 3)
-        )
-
-        for entity in self.entities:
-            size = int(entity.size)
-            # Calculate the coordinates of the circle
-            x, y = entity.position
-
-            padded_x = int(x + self.outlook_padding)
-            padded_y = int(y + self.outlook_padding)
-            X, Y = np.ogrid[
-                padded_x
-                - size : min(padded_x + size, w + 2 * self.outlook_padding - 1),
-                padded_y
-                - size : min(padded_y + size, h + 2 * self.outlook_padding - 1),
-            ]
-
-            dist_from_center = (X - padded_x + 0.5) ** 2 + (Y - padded_y + 0.5) ** 2
-            mask = dist_from_center <= size**2
-
-            # Use the mask to set the corresponding values in the numpy array to 1
-            # mask = cv2.resize(mask.astype(np.uint8), (size, size))
-            colored_mask = np.zeros((2 * size, 2 * size, 3))
-            colored_mask[mask] = entity.color
-
-            outlook[
-                padded_x - size : padded_x + size,
-                padded_y - size : padded_y + size,
-            ] += colored_mask
-
-            outlook = np.where(outlook > 0, 1, 0).astype(np.float64)
-
-        return outlook

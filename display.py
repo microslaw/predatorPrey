@@ -60,9 +60,6 @@ class Display:
             (x / self.scale, y / self.scale),
             max(1, entity.size / self.scale),
         )
-        # entity.position = (x - 1, y - 1)
-
-        # print(entity.previous_estimates)
 
         outlook = game.get_outlook(entity)
 

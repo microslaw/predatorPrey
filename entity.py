@@ -58,8 +58,6 @@ class Entity:
         self.position = (x, y)
 
     def move_by(self, dx, dy):
-        # if self.chosen:
-        #     print(f"Moving by {dx}, {dy}")
         x, y = self.position
         self.move_to(x + dx, y + dy)
 
@@ -71,8 +69,6 @@ class Entity:
         else:
             x, y = self.action_space[movement_id]
         if self.chosen:
-            # x, y = 0, 0
-            # print(x,y)
             self.set_last_move((x, y))
         self.move_by(x, y)
 
