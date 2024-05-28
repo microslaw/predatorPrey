@@ -58,8 +58,8 @@ class Entity:
         self.position = (x, y)
 
     def move_by(self, dx, dy):
-        if self.chosen:
-            print(f"Moving by {dx}, {dy}")
+        # if self.chosen:
+        #     print(f"Moving by {dx}, {dy}")
         x, y = self.position
         self.move_to(x + dx, y + dy)
 
@@ -70,8 +70,15 @@ class Entity:
             x, y = self.action_space[np.random.randint(0, len(self.action_space))]
         else:
             x, y = self.action_space[movement_id]
-        self.last_move = (x, y)
+        if self.chosen:
+            # x, y = 0, 0
+            # print(x,y)
+            self.set_last_move((x, y))
         self.move_by(x, y)
+
+    def set_last_move(self, move):
+        self.last_move = move
+
 
     def is_alive(self):
         return self.hp > 0
@@ -80,6 +87,10 @@ class Entity:
         self.hp -= damage
 
     def act(self, outlook, entityDict):
+        self.age += 1
+        self.food -= globals.food_cost
+        if self.food < 0:
+            self.hp -= globals.starving_damage
         move = self.decide(outlook)
         self.perform_move(move)
         if self.learner:
@@ -88,11 +99,6 @@ class Entity:
             timer_fit.toc()
 
     def decide(self, outlook):
-        self.age += 1
-        self.food -= globals.food_cost
-        if self.food < 0:
-            self.hp -= globals.starving_damage
-
         timer_predict.tic()
         state = self.get_state(outlook)
         self.previous_state = state
@@ -100,18 +106,7 @@ class Entity:
         self.previous_estimates = move
         timer_predict.toc()
 
-        # movementId = self.brain.predict(state=self.get_state(**entitiesDict))
-        # # movementId = self.model.decide(state=[0, 434, 403, 5.05, 20, 185, 4.154198871677794, 124, 174, 6], verbose = 0)
-        # movement = self.movement_states[movementId]  # type: ignore
-        # self.last_action = movementId
-        # self.previous_state = self.get_state(**entitiesDict)
-        # movement = (
-        #     random.randint(-self.speed, self.speed),
-        #     random.randint(-self.speed, self.speed),
-        # )
-        # self.current_state = self.get_state(**entitiesDict)
-
-        self.perform_move(move)
+        return move
 
     def get_state(self, outlook):
         state = np.reshape(outlook, (-1,))
@@ -139,7 +134,7 @@ class Entity:
             return
 
         self.reward_high_hp()
-        self.reward_close_proximity(entityDict)
+        # self.reward_close_proximity(entityDict)
         self.brain.qlearn_cyclic(
             reward=self.reward,
             previous_estimates=self.previous_estimates,

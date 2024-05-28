@@ -74,7 +74,7 @@ class Display:
         )
 
         map = np.array(generate_outputs(entity.speed)) + entity.speed
-        reward_list = entity.brain.predict(entity.get_state(outlook))
+        reward_list = entity.previous_estimates
 
         size = int(entity.speed * 2 + 1)
         predicted_rewards = np.zeros((size, size))
@@ -97,8 +97,15 @@ class Display:
         )
 
         predicted_rewards[best_x, best_y] = [0, 255, 0]
+
+        a,b = entity.last_move
+        a += entity.speed
+        b += entity.speed
+
+        predicted_rewards[a, b] += [0, 0, 255]
+        predicted_rewards[best_x, best_y] += [0, 255, 0]
         predicted_rewards = predicted_rewards.transpose(1, 0, 2)
-        predicted_rewards = np.flip(predicted_rewards, 1)
+        # predicted_rewards = np.flip(predicted_rewards, 1)
         predicted_rewards = cv2.resize(
             predicted_rewards, predicted_rewards.shape[0:2]
         ).astype(np.uint8)

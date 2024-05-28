@@ -100,12 +100,6 @@ class Game:
         self.entities = []
         self.turnNo = 0
 
-        test_sheep = Sheep(
-            (
-                10 + self.width // 2,
-                10 + self.height // 2,
-            )
-        )
 
         whiteWolf = Wolf(
             (
@@ -115,9 +109,8 @@ class Game:
         )
         whiteWolf.chosen = True
         whiteWolf.color = (255, 255, 255)
-        # whiteWolf.food = 10 * globals.min_wolf_food
+        # whiteWolf.food = 2 * globals.min_wolf_food
         self.entities.append(whiteWolf)
-        self.entities.append(test_sheep)
 
         if randomStart:
             for _ in range(sheepCount):
@@ -159,9 +152,9 @@ class Game:
             timer_outlook.tic()
             # self.global_outlook = self.get_global_outlook()
             outlook = self.get_outlook(entity)
+            entity.act(outlook, self.get_entity_dict())
             timer_outlook.toc()
 
-            entity.act(outlook, self.get_entity_dict())
 
         timer_collisions.tic()
         self.check_collisions()

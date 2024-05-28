@@ -64,18 +64,17 @@ todo:
 		pick final parameters for sight - done
 		benchmark and try to optimize
 		improve reward system
-		add self-made model
+		upgrade reward view
+		maybe convolution - didn't work
 
 
 	nope:
 		batch processing
 		dqn?
+		statistics
 
 
 	create self-made model
-	upgrade reward view
 
-	maybe convolution
 	create a simpler enviroment
-	update rewards
-	statistics
+		update rewards
