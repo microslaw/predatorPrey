@@ -52,7 +52,6 @@ class Display:
 
     def handle_chosen(self, entity, game):
         x, y = entity.position
-        # print(entity.food)
 
         pygame.draw.circle(
             self.screen,
@@ -77,7 +76,6 @@ class Display:
         predicted_rewards = np.zeros((size, size))
         for i in range(len(map)):
             predicted_rewards[map[i][0], map[i][1]] = reward_list[i].astype(np.float32)
-        # to rgb for display
         predicted_rewards = predicted_rewards + np.abs(np.min(predicted_rewards))
         predicted_rewards = (predicted_rewards / np.max(predicted_rewards)) * 255
 
@@ -102,7 +100,6 @@ class Display:
         predicted_rewards[a, b] += [0, 0, 255]
         predicted_rewards[best_x, best_y] += [0, 255, 0]
         predicted_rewards = predicted_rewards.transpose(1, 0, 2)
-        # predicted_rewards = np.flip(predicted_rewards, 1)
         predicted_rewards = cv2.resize(
             predicted_rewards, predicted_rewards.shape[0:2]
         ).astype(np.uint8)

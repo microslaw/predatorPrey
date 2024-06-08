@@ -1,7 +1,7 @@
 from wolf import Wolf
 from sheep import Sheep
 from grass import Grass
-from utils import distance_kartesian, distance_manhattan
+from utils import distance_kartesian
 import globals
 import random
 from timer import (
@@ -11,6 +11,7 @@ from timer import (
 )
 import numpy as np
 from entity import Entity
+from display import Display
 
 
 class Game:
@@ -42,13 +43,11 @@ class Game:
         wolf.take_damage(sheep.damage)
 
         if not sheep.is_alive():
-            # print(f"{wolf.name} killed {sheep.name}")
             sheep.penalize_getting_killed()
             wolf.reward_eating()
             return sheep
 
         if not wolf.is_alive():
-            # print(f"{sheep.name} killed {wolf.name}")
             return wolf
 
     @staticmethod
@@ -65,12 +64,11 @@ class Game:
         grass.take_damage(sheep.damage)
         sheep.reward_eating()
         if not grass.is_alive():
-            # print(f"{sheep.name} ate {grass.name}")
             return grass
 
     def __init__(
         self,
-        display=None,
+        display=Display(),
         height=globals.game_height,
         width=globals.game_width,
         learning=True,
@@ -108,7 +106,6 @@ class Game:
         )
         whiteWolf.chosen = True
         whiteWolf.color = (255, 255, 255)
-        # whiteWolf.food = 2 * globals.min_wolf_food
         self.entities.append(whiteWolf)
 
         if randomStart:
@@ -145,7 +142,6 @@ class Game:
     def turn(self):
 
         for entity in self.entities:
-            # print(f"Name: {entity.name}, current hp: {entity.hp}, current food: {entity.food}")
 
             if type(entity) is Grass:
                 continue
@@ -195,7 +191,6 @@ class Game:
                         distance_kartesian(entity.position, other.position)
                         < entity.size + other.size
                     ):
-                        # print(f"{entity.name} collided with {other.name}")
                         result = Game.collide(entity, other)
                         if result is not None:
                             self.entities.append(result)
@@ -235,11 +230,6 @@ class Game:
         for other_entity in self.entities:
             if other_entity.is_alive() == False:
                 continue
-            # if other_entity == entity:
-            #     continue
-            distance = distance_manhattan(looker.position, other_entity.position)
-            # if distance > looker.sight - other_entity.size - 2:
-            #     continue
 
             x, y = other_entity.position
             x_vector = looker_x - x

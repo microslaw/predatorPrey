@@ -18,7 +18,6 @@ class Wolf(Entity):
             size=globals.entityParams_wolf_size,
             color=globals.entityParams_wolf_color,
             position=parent_pos,
-            # food=globals.entityParams_wolf_food,
             food=int(np.random.normal(globals.entityParams_wolf_food, 10)),
             brain=Wolf.brain,
             sight=globals.entityParams_wolf_sight,

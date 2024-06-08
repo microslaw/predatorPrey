@@ -83,26 +83,20 @@ class NeuralNetwork:
         output_error = lossFunction(target - self.layers[-1], derivative=True)
 
         for i in range(len(self.layers) - 2, -1, -1):
-            # Calculate the derivative of the activation function
             derivative = self.activationFunctions[i](
                 self.layers[i + 1], derivative=True
             )
 
-            # Calculate the error of the current layer
             layer_error = (
                 np.dot(output_error * derivative, self.weights[i].T) * learning_rate
             )
 
-            # Calculate the adjustments for the weights and biases
             weight_adjustments = np.outer(self.layers[i], output_error)
             bias_adjustments = output_error
 
-            # Update the weights and biases
             self.weights[i] += weight_adjustments * learning_rate
             self.biases[i] += bias_adjustments * learning_rate
 
-            # Set the output error for the next iteration
-            # np.normalize(layer_error)
             output_error = layer_error
 
     def predict(self, input):
@@ -110,7 +104,6 @@ class NeuralNetwork:
         self.forward()
         return self.readOutput()
 
-    # may be shortened
     def train(self, input, target, learning_rate, lossFunction):
         self.loadInput(input)
         self.forward()

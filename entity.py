@@ -130,7 +130,6 @@ class Entity:
             return
 
         self.reward_high_hp()
-        # self.reward_close_proximity(entityDict)
         self.brain.qlearn_cyclic(
             reward=self.reward,
             previous_estimates=self.previous_estimates,
