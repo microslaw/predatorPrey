@@ -1,0 +1,33 @@
+ai prototyping:
+
+
+input changes:
+ADD self.X AND self.Y TO INPUTS
+change input to cnn
+	the cnn may be a cut out square around the entity. This reduces amount of input data, removes the need to pass entity's position
+change inputs to vectors
+	will require changing outputs to vectors, small neural network may be unable tolearn mapping 2,3 -> [1,0, ... 0]
+more inputs in general
+use coding in one-layer network to pass chunks of a screen
+	similiar to idea of cnn but more compact data with less precision. The previous option is preffered
+
+
+output changes:
+change output to 2 coordinates + speed:
+	if vectors are inputed, should be easier to learn to go in some direction
+
+general changes:
+make model one layered to increase stability
+
+
+optimizations:
+test only on sheep
+	will swap to full simulation later
+
+batch training
+figure out wtf is going on in there, how q values are connected
+
+use dual models with freezing - more stable, hard to do
+
+
+Trials/tpyes:
